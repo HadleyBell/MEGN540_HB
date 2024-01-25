@@ -63,6 +63,9 @@ int main( void )
 
     while( true ) {
         Task_USB_Upkeep();  // This we need to run Always and fast, so no need to wrap it with task management
+                            // sets time that handeles communciation between host and device 
+                            // if you lose communcication make sure task is called at a fast enough rate
+                            // priority 0 
 
         Task_USB_Echo();  // you'll want to remove this once you get your serial sorted
         // Task_Message_Handling(0.0); // you'll want to uncomment once you get your serial sorted.
