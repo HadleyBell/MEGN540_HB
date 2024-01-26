@@ -53,6 +53,11 @@ void blink_morse_str( char* str, uint16_t dot_length_ms )
     // WHILE: str[counter] is not null (0) and counter is < 255 (it's always good to work with an infinite-loop net)
     //
     // END FUNCTION
+    unit8_t i = 0
+    while (i < strlen(str); i++)
+    {
+        blink_morse_char(str[i], dot_length_ms);
+    }
 }
 
 int main()
