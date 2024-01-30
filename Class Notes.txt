@@ -1,0 +1,87 @@
+Mechatronics Notes 
+
+1/30/2023 
+
+Lab1 Notes add counters in front 
+    SerialIO have serial read into 
+        Input pointer and # bytes to read into struct 
+        pass pointer to strucutre and size, treat as character array 
+
+    Read values put in struct with lab1 tasks then activate multiply and send task 
+        main loop then checks multiply and send task 
+
+    Walking through USB Echo 
+        Ensure send characters ok 
+        Where do you want to go 
+            Include buffers
+        USB_Upkeep will load 
+            is in ready send to host 
+
+        Buffer echo interfaces 
+        then task things 
+
+Timer & Interrupts 
+    AVR Timers
+        How long to execute main link 
+        Too long can make system unstable 
+    Automatically count incrment value based on crystal oscilator 
+        reset at 255 
+        Complete hardware implemented
+    Uses and gates and comparitors 
+    Counting at 16Mhz will role over every 16us 
+    Prescaler 
+        allow to divide clock frequency and 
+        Makes counter 32 bit but only look at last 8 bits 
+
+    Only care every 4.096 ms 
+        instructions in documentation with what is prescaler to achieve 
+    AVR Timers 
+        4 timers on chip all independent of clock 
+
+    Functionality 
+        Output compare 
+            input register match a count will do something, flip switch 
+            change matching number and will change frequency 
+        Internal counter    (ISR)
+            Match two numbers and interupt service routine 
+            Very important to make lightweight 
+
+        OC0B, output compare 0C on B side 
+            Pin chosen as others will be used
+            From schematic to code selection communicated in lab report 
+
+            Have A and B channels 
+            Can auto clear timer on compare match 
+
+            compare matc clear at 249 count 250 times each 4 us to give 1 ms res 
+
+            Every time it rollsover incremnt by 1 using ISR 
+                get ms from turnon in ms 
+
+            Have timing at 4 us as you can look at timer count and internal ms count 
+
+        O output, physical toggle on compare match 
+            will turn on or off led in current state 
+        Disconnected don't want timer to talk to outside world 
+
+        Want in CTC mode WGM clear timer on compare match 
+
+        Has external clock source XTAL2 and XTAL1 
+
+Interupts 
+    Keep track of when ISR is triggered
+    Interupts CPU and then returns 
+    increment _count_ms every time accesable 
+        global to timing.c 
+        static and volitile can change in interupt 
+        int only acces inside c files
+    Functional interfaces to then access _count_ms within timing.c 
+        protects from errors 
+
+    XXXX is subroutine for interupts 
+        go through list to then replace one that makes sense for you 
+
+    All in avr documentation
+
+
+    #define TIMER0_OVF_vect     _VECTOR(23)  /* Timer/Counter0 Overflow */

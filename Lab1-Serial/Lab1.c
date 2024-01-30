@@ -28,6 +28,10 @@
 
 */
 
+// Goal 
+    // Integrate ring buffer into Task_USB_Echo SerialIO
+    // 
+
 #include "Lab1_Tasks.h"
 #include "Message_Handling.h"
 #include "SerialIO.h"
@@ -56,6 +60,7 @@ void Initialize_Modules( float _not_used_ )
  */
 int main( void )
 {
+
     Initialize_USB();
     Initialize_Modules( 0.0 );
 
@@ -67,6 +72,8 @@ int main( void )
                             // if you lose communcication make sure task is called at a fast enough rate
                             // priority 0 
 
+        
+
         Task_USB_Echo();  // you'll want to remove this once you get your serial sorted
         // Task_Message_Handling(0.0); // you'll want to uncomment once you get your serial sorted.
         // Instead of above, once you have Task_Message_Handling working, you can setup the message handling task to be managed by our task management
@@ -76,3 +83,8 @@ int main( void )
         Task_Run_If_Ready( &task_restart );
     }
 }
+
+// Notes
+// With serial monitor 
+    // sending h (2 byte int) 7584 converts to Ox1D 0xA0 
+    // then echoed back in opposite order 

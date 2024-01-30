@@ -1,5 +1,5 @@
 # I target a recent cmake, it shouldn't be a problem on a dev machine
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
 
 ## AVR Chip Configuration
 # 16Mhz, this should match the crystal on your board,

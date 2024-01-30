@@ -79,6 +79,8 @@ void Task_Message_Handling( float _time_since_last )
                     float v2;
                 } data;
 
+                // interpret bit structure
+                
                 // Copy the bytes from the usb receive buffer into our structure so we
                 // can use the information
                 USB_Msg_Read_Into( &data, sizeof( data ) );

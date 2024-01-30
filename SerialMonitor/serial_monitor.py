@@ -162,7 +162,7 @@ class GuiSetup:
 
         # button
         yLoc += - 40
-        self.button_connect = Button(   text=" Connect  ", command=self.connectToSerial)
+        self.button_connect = Button(text=" Connect  ", command=self.connectToSerial)
         self.button_connect.place(x=15, y=yLoc)
 
         yLoc += - 55
