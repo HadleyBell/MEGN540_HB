@@ -85,8 +85,6 @@ static void _USB_Read_Data()
     // check if there is data 
     if( Endpoint_IsOUTReceived() ) {
 
-
-
         // /* Remember how large the incoming packet is */
         uint16_t DataLength = Endpoint_BytesInEndpoint();
 
@@ -101,13 +99,16 @@ static void _USB_Read_Data()
         /* Finalize the stream transfer to send the last packet */
         Endpoint_ClearOUT();
 
-    // if (DataLength != 0) {
-    // /* Select the Serial Tx Endpoint */
-    //     Endpoint_SelectEndpoint( CDC_TX_EPADDR );
-    //     Endpoint_Write_8( DataLength); 
-    //         /* Finalize the stream transfer to send the last packet */
-    //     Endpoint_ClearIN();
-    // }
+        // // write input size
+        // if (DataLength != 0) {
+        // /* Select the Serial Tx Endpoint */
+        //     Endpoint_SelectEndpoint( CDC_TX_EPADDR );
+        //     Endpoint_Write_8( DataLength); 
+        //         /* Finalize the stream transfer to send the last packet */
+        //     Endpoint_ClearIN();
+        //     Endpoint_WaitUntilReady();
+        //     Endpoint_ClearIN();
+        // }
     }
     // Endpoint_Read_8 
     // read and then put in buffer
@@ -263,6 +264,8 @@ void Task_USB_Echo( void )
 
     if( rb_length_B( &_usb_receive_buffer ) != 0 )
         rb_push_back_B( &_usb_send_buffer, rb_pop_front_B( &_usb_receive_buffer ) );
+
+
     // //
     // if( usb_msg_length() != 0 )
     //    usb_send_byte(usb_msg_get());
