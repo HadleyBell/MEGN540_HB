@@ -154,13 +154,23 @@ void Task_Message_Handling( float _time_since_last )
                 
                 // come back to once finish task management 
 
+                // send byte 0?
+                USB_Send_Byte( 0 ); 
+
+                // task_restart.is_active = true; // ???????????????
+                Task_ReActivate( &task_restart ); // is this what it wants 
+
+
+
                 // /* MEGN540 -- LAB 2 */ command_processed = true;
             }
             break;
         default:
             // What to do if you dont recognize the command character
 
-            // possibly can send string sayin ginvalid 
+            USB_Send_Byte( '?' );
+            USB_Flush_Input_Buffer(); 
+
             break;
     }
 

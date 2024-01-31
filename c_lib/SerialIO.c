@@ -151,6 +151,9 @@ static void _USB_Write_Data()
     Endpoint_WaitUntilReady();
     /* Send an empty packet to prevent host buffering */
     Endpoint_ClearIN();
+
+    // How to handel send 8 bits in a frame modifying 
+    // Endpoint_WaitUntilReady() 
 }
 
 void Task_USB_Upkeep()
@@ -367,7 +370,6 @@ void USB_Send_Msg( char* format, char cmd, void* p_data, uint8_t data_len )
     char* p_end_format = strrchr( format, '\0' );
     uint8_t format_length = p_end_format - format + 1; 
     uint8_t message_length = 1 + format_length + data_len; 
-    // why do we need message length ?? 
 
     // send data
     USB_Send_Byte( message_length );
