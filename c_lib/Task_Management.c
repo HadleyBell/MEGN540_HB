@@ -69,7 +69,6 @@ bool Task_Is_Ready( Task_t* task )
 
     return task->is_active; 
 
-
     // lab 2
     // need to check timing with run_period 
 }
@@ -94,8 +93,7 @@ void Task_Run( Task_t* task )
     }
 
     // Should this be 
-    task->is_active = false; 
-    // Task_C
+    // task->is_active = false; 
 }
 
 /** Function Task_Run_If_Ready Function Task_Run_If_Ready checks to see if the given task is ready for execution, executes the task,
@@ -114,13 +112,10 @@ bool Task_Run_If_Ready( Task_t* task )
         Task_Run( task );
     }
 
-
     // return Task_Is_Ready( task ); 
     return false;
 
-
     // lab 2
     // expand on chekcing if task pointer null and timing
-
     // return false;  // true if it ran, false if it did not run
 }

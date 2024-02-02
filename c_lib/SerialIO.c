@@ -93,28 +93,12 @@ static void _USB_Read_Data()
         for ( uint8_t i = 0; i < DataLength; i++ ) {
             rb_push_back_B( &_usb_receive_buffer, Endpoint_Read_8() ); 
         }
-
-        
-
         /* Finalize the stream transfer to send the last packet */
         Endpoint_ClearOUT();
 
-        // // write input size
-        // if (DataLength != 0) {
-        // /* Select the Serial Tx Endpoint */
-        //     Endpoint_SelectEndpoint( CDC_TX_EPADDR );
-        //     Endpoint_Write_8( DataLength); 
-        //         /* Finalize the stream transfer to send the last packet */
-        //     Endpoint_ClearIN();
-        //     Endpoint_WaitUntilReady();
-        //     Endpoint_ClearIN();
-        // }
     }
-    // Endpoint_Read_8 
     // read and then put in buffer
-
     // handel overflow etc 
-
     // if not enough then can not clear 
     // need to continue through code and then hope buffer is processed 
 }
@@ -136,24 +120,31 @@ static void _USB_Write_Data()
     /* Select the SerialUSB_Send_Byte Tx Endpoint */
     Endpoint_SelectEndpoint( CDC_TX_EPADDR );
 
+
     // /* Remember how large the incoming packet is */
     uint8_t DataLength = rb_length_B( &_usb_send_buffer );
+    uint8_t tx_length = CDC_TXRX_EPSIZE; // 16 
 
     // Endpoint_Write_8( 0x34 ); 
 
-    for ( uint8_t i = 0; i < DataLength; i++ ) {
+    while (tx_length != 0 && DataLength != 0 ) 
+    {
         Endpoint_Write_8( rb_pop_front_B( &_usb_send_buffer ) ); 
+
+        // decrement each 
+        tx_length--;
+        DataLength--;
     }
 
     /* Finalize the stream transfer to send the last packet */
     Endpoint_ClearIN();
-    /* Wait until the endpoint is ready for the next packet */
-    Endpoint_WaitUntilReady();
-    /* Send an empty packet to prevent host buffering */
-    Endpoint_ClearIN();
 
-    // How to handel send 8 bits in a frame modifying 
-    // Endpoint_WaitUntilReady() 
+    if ( rb_length_B( &_usb_send_buffer ) == 0 ) {
+        /* Wait until the endpoint is ready for the next packet */
+        Endpoint_WaitUntilReady();
+        /* Send an empty packet to prevent host buffering */
+        Endpoint_ClearIN();
+    }
 }
 
 void Task_USB_Upkeep()
@@ -173,111 +164,16 @@ void Task_USB_Upkeep()
  */
 void Task_USB_Echo( void )
 {
-
     /* Device must be connected and configured for the task to run */
     if( USB_DeviceState != DEVICE_STATE_Configured )
         return;
 
-    // /* Select the Serial Rx Endpoint */
-    // Endpoint_SelectEndpoint( CDC_RX_EPADDR );
-
-
-
-
-
-    // /* Check to see if any data has been received */
-    // if( Endpoint_IsOUTReceived() ) {
-
-    //     // Task_USB_Upkeep(); 
-
-
-    //     /* Create a temp buffer big enough to hold the incoming endpoint packet */
-    //     uint8_t Buffer[Endpoint_BytesInEndpoint()];
-
-    //     // buffer added think I will need one for read and one for write 
-        
-    //     // /* Remember how large the incoming packet is */
-    //     uint16_t DataLength = Endpoint_BytesInEndpoint();
-
-
-
-    //     // Ring_Buffer_Float_t rb_read_F_pt;
-    //     // rb_initialize_F( &rb_read_F_pt );
-    //     // uint16_t DataLength = CDC_TXRX_EPSIZE;
-
-    //     // const uint32_t dot_length_ms = 100;
-    //     // led_on_block( dot_length_ms );
-
-    //     // for (uint8_t i = 0; i < DataLength; i++ ) {
-    //     //     rb_push_back_B( &_usb_send_buffer, rb_pop_front_B( &_usb_receive_buffer ) );
-    //     // };
-
-
-    //     /* Read in the incoming packet into the buffer */
-    //     Endpoint_Read_Stream_LE( &Buffer, DataLength, NULL );
-    //     // uint8_t tt1 = Endpoint_Read_8( ); 
-    //     // uint8_t tt2 = Endpoint_Read_8( ); 
-
-
-    //     /* Finalize the stream transfer to send the last packet */
-    //     Endpoint_ClearOUT();
-
-    //     /* Select the Serial Tx Endpoint */
-    //     Endpoint_SelectEndpoint( CDC_TX_EPADDR );
-
-
-    //     /* Write the received data to the endpoint */
-    //     Endpoint_Write_Stream_LE( &Buffer, DataLength, NULL );
-
-    //     // const uint8_t temp_write  = 0x58;
-    //     // const uint8_t temp_write1  = 0x59;
-    //     // Endpoint_Write_8( temp_write ); 
-
-    //     // Endpoint_Write_8( tt1 ); 
-    //     // Endpoint_Write_8( tt2 ); 
-
-    //     /* Finalize the stream transfer to send the last packet */
-    //     Endpoint_ClearIN();
-
-    //     /* Wait until the endpoint is ready for the next packet */
-    //     Endpoint_WaitUntilReady();
-
-    //     /* Send an empty packet to prevent host buffering */
-    //     Endpoint_ClearIN();
-
-    //     // Endpoint_SelectEndpoint( CDC_TX_EPADDR );
-    //     // // uint8_t temp_write = 'a';
-    //     // const uint8_t temp_write  = 0x58;
-    //     // Endpoint_Write_8( temp_write ); 
-
-    //     // // Endpoint_Write_Stream_LE( &Buffer, DataLength, NULL );
-    //     // Endpoint_WaitUntilReady();
-    //     // Endpoint_ClearIN();
-    // }
-
-    // ************** MEGN540 FOR DEBUGGING ***************** //
-    // once you get your _USB_Read_Data and _USB_Write_Data to work with your ring buffers
-    // you can comment out the above example and reproduce the echo functionality with either
-    // of the below
-    //
-
-
-    // _USB_Read_Data(); 
-
-
+    // Alternate methods of coppying receive buffer to send buffer 
     if( rb_length_B( &_usb_receive_buffer ) != 0 )
         rb_push_back_B( &_usb_send_buffer, rb_pop_front_B( &_usb_receive_buffer ) );
 
-
-    // //
-    // if( usb_msg_length() != 0 )
-    //    usb_send_byte(usb_msg_get());
-    //
-
-
-    // _USB_Write_Data(); 
-
-    // Endpoint_ClearIN();
+    // if( USB_Msg_Length() != 0 )
+    //    USB_Send_Byte(USB_Msg_Get());
 }
 
 /**
@@ -331,7 +227,6 @@ void USB_Send_Str( char* p_str )
     }
     // send the string termination character 
     rb_push_back_B( &_usb_send_buffer, '\0' );
-
 }
 
 /**
@@ -408,11 +303,6 @@ uint8_t USB_Msg_Peek()
     } else {
         return 0;
     }
-    // note sure if the index should be start index, think it would be 0 as this is start_index + index 
-    // not sure what to do if null i guess treat 0 as null? maybe 
-
-    // OK
-    // Not Tested 
 }
 
 /**
@@ -432,9 +322,6 @@ uint8_t USB_Msg_Get()
     } else {
         return 0;
     }
-
-    // OK
-    // Not Tested 
 }
 
 /**
@@ -457,16 +344,10 @@ bool USB_Msg_Read_Into( void* p_obj, uint8_t data_len )
         for (uint8_t i = 0; i < data_len; i++) { 
             uint8_t temp_byte = rb_pop_front_B( &_usb_receive_buffer ); 
             *((uint8_t*)p_obj + i) = temp_byte;
-            // uint8_t* p_temp_byte = &temp_byte; 
-            // void* p_void_byte; 
-            // p_void_byte = &p_temp_byte; 
-            // // void void_temp_byte = temp_byte;
-            // p_obj[i] = *p_void_byte;
         }
     } else {
         return false; 
     }
-
     return true;
 }
 

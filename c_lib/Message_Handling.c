@@ -147,20 +147,11 @@ void Task_Message_Handling( float _time_since_last )
             if( USB_Msg_Length() >= _Message_Length( '~' ) ) {
                 // then process your reset by setting the task_restart flag defined in Lab1_Tasks.h
 
-                // not sure what this character is
-
                 // task cancel 
                 // clear all buffers ? 
-                
-                // come back to once finish task management 
-
-                // send byte 0?
                 USB_Send_Byte( 0 ); 
 
-                // task_restart.is_active = true; // ???????????????
-                Task_ReActivate( &task_restart ); // is this what it wants 
-
-
+                Task_ReActivate( &task_restart );
 
                 // /* MEGN540 -- LAB 2 */ command_processed = true;
             }
