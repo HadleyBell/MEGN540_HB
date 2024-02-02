@@ -22,6 +22,8 @@ void Task_Activate( Task_t* task, float run_period )
     // Here you should change the state of the is_active member and set the time to now (lab 2)
     // to identify the task is active
     // set the run_period as proscribed
+    task->is_active = true;
+    task->run_period = run_period;
 }
 
 /**
@@ -35,6 +37,7 @@ void Task_ReActivate( Task_t* task )
     //****** MEGN540 --  START IN LAB 1, UPDATE IN Lab 2 ******//
     // Here you should change the state of the is_active member and set the time to now (lab 2)
     // to identify the task is active
+    task->is_active = true;
 }
 
 /** Function Task_Cancel changes the internal state to disable the task **/
@@ -43,6 +46,7 @@ void Task_Cancel( Task_t* task )
     //****** MEGN540 -- Lab 1 ******//
     // Here you should change the state of the is_active member
     // to identify the task is inactive
+    task->is_active = false;
 }
 
 /** Function Task_Is_Ready indicates if the task should be run. It checks both
@@ -52,7 +56,15 @@ bool Task_Is_Ready( Task_t* task )
 {
     //****** MEGN540 --  START IN LAB 1, UPDATE IN Lab 2 ******//
     // Note a run_period of 0 indicates the task should be run every time if it is active.
-    return false;  // MEGN540 Update to set the return statement based on is_active and time_last_ran.
+    // return false;  // MEGN540 Update to set the return statement based on is_active and time_last_ran.
+//     if(task->run_period == 0 && task->is_active == true)
+//     {
+//         return true;
+//     } else {
+//         return false;
+//     }
+// }
+    return task->is_active;
 }
 
 /**
@@ -68,7 +80,15 @@ void Task_Run( Task_t* task )
     // Update time_last_ran and is_active as appropriate.
     // Note that a negative run_period indicates the task should only be performed once, while
     // a run_period of 0 indicates the task should be run every time if it is active.
-    ;
+    
+    task->task_fcn_ptr(0); 
+    if(task->task_fcn_ptr < 0) {
+        Task_Cancel( task );
+    } else {
+        task->time_last_ran.microsec = 0;
+        task->time_last_ran.millisec = 0;
+        task->is_active = true;
+    }
 }
 
 /** Function Task_Run_If_Ready Function Task_Run_If_Ready checks to see if the given task is ready for execution, executes the task,
@@ -83,5 +103,11 @@ bool Task_Run_If_Ready( Task_t* task )
     //
     // Run it if it is ready
 
-    return false;  // true if it ran, false if it did not run
+    // return false;  // true if it ran, false if it did not run
+    if( Task_Is_Ready( task ) ) {
+        Task_Run( task );
+        return true;
+    } else {
+        return false;
+    }
 }

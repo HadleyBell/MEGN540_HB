@@ -91,21 +91,81 @@ void Task_Message_Handling( float _time_since_last )
             break;
         case '/':
             if( USB_Msg_Length() >= _Message_Length( '/' ) ) {
-                // then process your divide...
+                // then process your multiplication...
+
+                // remove the command from the usb recieved buffer using the
+                // usb_msg_get() function
+                USB_Msg_Get();  // removes the first character from the received buffer,
+                                // we already know it was a * so no need to save it as a
+                                // variable
+
+                // Build a meaningful structure to put your data in. Here we want two
+                // floats.
+                struct __attribute__( ( __packed__ ) ) {
+                    float v1;
+                    float v2;
+                } data;
+
+                // Copy the bytes from the usb receive buffer into our structure so we
+                // can use the information
+                USB_Msg_Read_Into( &data, sizeof( data ) );
+
+                // Call MEGN540_Lab_Task Function
+                Divide_And_Send( data.v1, data.v2 );
 
                 // /* MEGN540 -- LAB 2 */ command_processed = true;
             }
             break;
         case '+':
             if( USB_Msg_Length() >= _Message_Length( '+' ) ) {
-                // then process your plus...
+                // then process your multiplication...
+
+                // remove the command from the usb recieved buffer using the
+                // usb_msg_get() function
+                USB_Msg_Get();  // removes the first character from the received buffer,
+                                // we already know it was a * so no need to save it as a
+                                // variable
+
+                // Build a meaningful structure to put your data in. Here we want two
+                // floats.
+                struct __attribute__( ( __packed__ ) ) {
+                    float v1;
+                    float v2;
+                } data;
+
+                // Copy the bytes from the usb receive buffer into our structure so we
+                // can use the information
+                USB_Msg_Read_Into( &data, sizeof( data ) );
+
+                // Call MEGN540_Lab_Task Function
+                Add_And_Send( data.v1, data.v2 );
 
                 // /* MEGN540 -- LAB 2 */ command_processed = true;
             }
             break;
         case '-':
             if( USB_Msg_Length() >= _Message_Length( '-' ) ) {
-                // then process your minus...
+                // then process your multiplication...
+
+                // remove the command from the usb recieved buffer using the
+                // usb_msg_get() function
+                USB_Msg_Get();  // removes the first character from the received buffer,
+                                // we already know it was a * so no need to save it as a
+                                // variable
+
+                // Build a meaningful structure to put your data in. Here we want two
+                // floats.
+                struct __attribute__( ( __packed__ ) ) {
+                    float v1;
+                    float v2;
+                } data;
+
+                // Copy the bytes from the usb receive buffer into our structure so we
+                // can use the information
+                USB_Msg_Read_Into( &data, sizeof( data ) );
+
+                // Call MEGN540_Lab_Task Function
+                Subtract_And_Send( data.v1, data.v2 );
 
                 // /* MEGN540 -- LAB 2 */ command_processed = true;
             }
@@ -113,12 +173,15 @@ void Task_Message_Handling( float _time_since_last )
         case '~':
             if( USB_Msg_Length() >= _Message_Length( '~' ) ) {
                 // then process your reset by setting the task_restart flag defined in Lab1_Tasks.h
-
+                USB_Msg_Get();
+                USB_Send_Byte(0);
+                Task_Activate(&task_restart, -1);
                 // /* MEGN540 -- LAB 2 */ command_processed = true;
             }
             break;
         default:
             // What to do if you dont recognize the command character
+            USB_Send_Byte( '^' );
             break;
     }
 
