@@ -54,6 +54,23 @@ void Initialize_Timing()
     // YOUR CODE HERE
     // Enable timing, setup prescalers, etc.
 
+    // set up timer with prescalar 
+    TCCR0B |= (1 << CS01); 
+    TCCR0B |= (1 << CS00);    
+    // initialize counter, initialize compare feature 
+    TCNT0 = 0;
+    OCR0A =0;
+    OCR0A =0;
+
+
+    // enable overflow interrupts 
+    TIMSK0 |= (1 << TOIE0)
+    TIMSK0 |= (1 << OCIE0B)
+    TIMSK0 |= (1 << OCIE0A)
+
+    //enable global interrupts
+    sei();
+
     _count_ms = 0;
 }
 
@@ -65,15 +82,19 @@ float Timing_Get_Time_Sec()
 {
     // *** MEGN540 Lab 2 ***
     // YOUR CODE HERE
-    return 0;
+    float time_now = _count_ms * 10^-3 + Timing_Get_Micro()*10^-6
+    
+    return time_now;
 }
 Time_t Timing_Get_Time()
 {
     // *** MEGN540 Lab 2 ***
     // YOUR CODE HERE
     Time_t time = {
-        .millisec = _count_ms,
-        .microsec = 0  // YOU NEED TO REPLACE THIS WITH A CALL TO THE TIMER0 REGISTER AND MULTIPLY APPROPRIATELY
+        .millisec = Timing_Get_Milli();
+        // .microsec = 0  // YOU NEED TO REPLACE THIS WITH A CALL TO THE TIMER0 REGISTER AND MULTIPLY APPROPRIATELY
+        .microsec = Timing_Get_Micro();
+        
     };
 
     return time;
@@ -92,7 +113,7 @@ uint16_t Timing_Get_Micro()
 {
     // *** MEGN540 Lab 2 ***
     // YOUR CODE HERE
-    return 0;  // YOU NEED TO REPLACE THIS WITH A CALL TO THE TIMER0 REGISTER AND MULTIPLY APPROPRIATELY
+    return TCNT0*4;  // YOU NEED TO REPLACE THIS WITH A CALL TO THE TIMER0 REGISTER AND MULTIPLY APPROPRIATELY
 }
 
 /**
@@ -104,20 +125,21 @@ float Timing_Seconds_Since( const Time_t* time_start_p )
 {
     // *** MEGN540 Lab 2 ***
     // YOUR CODE HERE
-    float delta_time = 0;
+    float delta_time = Timing_Get_Time_sec - time_start_p;
     return delta_time;
 }
 
 /** This is the Interrupt Service Routine for the Timer0 Compare A feature.
  * You'll need to set the compare flags properly for it to work.
  */
-/*ISR( DEFINE THE COMPARISON TRIGGER )
+ISR( TIMER0_COMPA_vect ) //DEFINE THE COMPARISON TRIGGER
 {
     // *** MEGN540 Lab 2 ***
     // YOUR CODE HERE
     // YOU NEED TO RESET THE Timer0 Value to 0 again!
+    Initialize_Timing();
 
     // take care of upticks of both our internal and external variables.
     _count_ms ++;
 
-}*/
+}
