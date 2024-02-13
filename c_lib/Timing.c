@@ -82,7 +82,7 @@ float Timing_Get_Time_Sec()
 {
     // *** MEGN540 Lab 2 ***
     // YOUR CODE HERE
-    float time_now = _count_ms * 10^-3 + Timing_Get_Micro()*10^-6
+    float time_now = _count_ms * (10^-3) + Timing_Get_Micro()*(10^-6);
     
     return time_now;
 }
@@ -125,7 +125,7 @@ float Timing_Seconds_Since( const Time_t* time_start_p )
 {
     // *** MEGN540 Lab 2 ***
     // YOUR CODE HERE
-    float delta_time = Timing_Get_Time_sec - time_start_p;
+    float delta_time = Timing_Get_Time_sec - (time_start_p->milisec * (10^-3) + time_start_p->milisec *(10^-6));
     return delta_time;
 }
 

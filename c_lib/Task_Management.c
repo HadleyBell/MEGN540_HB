@@ -24,6 +24,9 @@ void Task_Activate( Task_t* task, float run_period )
     // set the run_period as proscribed
     task->is_active = true;
     task->run_period = run_period;
+    
+    task->time_last_ran.microsec = Timing_Get_Time().microsec;
+    task->time_last_ran.millisec = Timing_Get_Time().millisec;
 }
 
 /**
@@ -37,6 +40,9 @@ void Task_ReActivate( Task_t* task )
     //****** MEGN540 --  START IN LAB 1, UPDATE IN Lab 2 ******//
     // Here you should change the state of the is_active member and set the time to now (lab 2)
     // to identify the task is active
+    task->time_last_ran.microsec = Timing_Get_Time().microsec;
+    task->time_last_ran.millisec = Timing_Get_Time().millisec;
+
     task->is_active = true;
 }
 
@@ -57,14 +63,14 @@ bool Task_Is_Ready( Task_t* task )
     //****** MEGN540 --  START IN LAB 1, UPDATE IN Lab 2 ******//
     // Note a run_period of 0 indicates the task should be run every time if it is active.
     // return false;  // MEGN540 Update to set the return statement based on is_active and time_last_ran.
-//     if(task->run_period == 0 && task->is_active == true)
-//     {
-//         return true;
-//     } else {
-//         return false;
-//     }
-// }
-    return task->is_active;
+    if(task->run_period == 0 && task->is_active == true)
+    {
+        return true;
+    } else {
+        task->is_active = false;
+        task->run_period = -1;
+        return false;
+    }
 }
 
 /**
