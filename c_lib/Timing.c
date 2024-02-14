@@ -54,26 +54,63 @@ void Initialize_Timing()
     // YOUR CODE HERE
     // Enable timing, setup prescalers, etc.
 
+    // enable timing
+
+    // Noral Operation OC0A Disconnected 
+    TCCR0A |= ( 0 << COM0A0 );
+    TCCR0A |= ( 0 << COM0A1 );
+
+    // Waveform Clear Timer on Compare Match 
+    TCCR0A |= ( 0 << WGM00 );
+    TCCR0A |= ( 1 << WGM01 ); 
+    TCCR0B |= ( 0 << WGM02 );
+
+    // Clock Prescallar / 64
+    TCCR0B |= ( 1 << CS00 );
+    TCCR0B |= ( 1 << CS01 );
+    TCCR0B |= ( 0 << CS02 );
+
+    // set compare value in register 
+    OCR0A = 249;
+    // OCR0A |= ( 1 << OCR0A1 )  // not sure if I need to set them indivualy
+
+
     _count_ms = 0;
 }
 
 /**
- * This function gets the current time and returns it in a Time_t structure.
+ * This function gets the current time and returns as a float.
  * @return
  */
 float Timing_Get_Time_Sec()
 {
     // *** MEGN540 Lab 2 ***
     // YOUR CODE HERE
-    return 0;
+
+    // See if correct 
+    Time_t time_struct = Timing_Get_Time();
+    float time_milli_sec = time_struct.millisec * 0.001; 
+    float time_micro_sec = time_struct.microsec * 0.000001;
+    float return_time = time_milli_sec + time_micro_sec;
+
+    return return_time;
 }
+
+/**
+ * This function gets the current time and returns it in a Time_t structure.
+ * @return
+ */
 Time_t Timing_Get_Time()
 {
     // *** MEGN540 Lab 2 ***
     // YOUR CODE HERE
+
+    // Get value of counter register 
+    uint_8 temp_read = TCNT0; 
+
     Time_t time = {
         .millisec = _count_ms,
-        .microsec = 0  // YOU NEED TO REPLACE THIS WITH A CALL TO THE TIMER0 REGISTER AND MULTIPLY APPROPRIATELY
+        .microsec = temp_read * 4; // for 4 us per fount 
     };
 
     return time;
@@ -92,7 +129,9 @@ uint16_t Timing_Get_Micro()
 {
     // *** MEGN540 Lab 2 ***
     // YOUR CODE HERE
-    return 0;  // YOU NEED TO REPLACE THIS WITH A CALL TO THE TIMER0 REGISTER AND MULTIPLY APPROPRIATELY
+
+    uint_8 temp_read = OCR0A; 
+    return temp_read * 4;  
 }
 
 /**
@@ -104,14 +143,23 @@ float Timing_Seconds_Since( const Time_t* time_start_p )
 {
     // *** MEGN540 Lab 2 ***
     // YOUR CODE HERE
+
     float delta_time = 0;
+
+    // get time now 
+    Time_t time_now = Timing_Get_Time();
+
+    // compare and add to delta_time
+    delta_time = (time_now.millisec - time_start_p->millisec) * 0.001;
+    delta_time += (time_now.microsec - time_start_p->microsec) * 0.000001;
+
     return delta_time;
 }
 
 /** This is the Interrupt Service Routine for the Timer0 Compare A feature.
  * You'll need to set the compare flags properly for it to work.
  */
-/*ISR( DEFINE THE COMPARISON TRIGGER )
+ISR( TIMER0_COMPA_vec )
 {
     // *** MEGN540 Lab 2 ***
     // YOUR CODE HERE
@@ -120,4 +168,9 @@ float Timing_Seconds_Since( const Time_t* time_start_p )
     // take care of upticks of both our internal and external variables.
     _count_ms ++;
 
-}*/
+    // reset Timer0 
+    TCNT0 = 0; 
+
+    // this is called every time the compare flag is executed I think 
+
+}
