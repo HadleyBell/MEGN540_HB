@@ -55,10 +55,9 @@ void Initialize_Timing()
     // Enable timing, setup prescalers, etc.
 
     // set up timer with prescalar
-    TCCR0A &= 0xFF ^ ( 1 << COM0A1 | 1 << COM0A0 );
+    TCCR0A = ( 1 << COM0A1 | 1 << COM0A0 | 1 << WGM01 );
     TCCR0B |= ( 1 << CS01 );
     TCCR0B |= ( 1 << CS00 );
-    TCCR0A |= ( 1 << WGM01 );
     // enable overflow interrupts
     TIMSK0 |= ( 1 << OCIE0A );
 
@@ -107,7 +106,7 @@ uint16_t Timing_Get_Micro()
 {
     // *** MEGN540 Lab 2 ***
     // YOUR CODE HERE
-    return TCNT0 * 4;  // YOU NEED TO REPLACE THIS WITH A CALL TO THE TIMER0 REGISTER AND MULTIPLY APPROPRIATELY
+    return TCNT0 << 2;  // YOU NEED TO REPLACE THIS WITH A CALL TO THE TIMER0 REGISTER AND MULTIPLY APPROPRIATELY(*4) or shift by 2 (<<2)
 }
 
 /**

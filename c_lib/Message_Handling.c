@@ -184,15 +184,15 @@ void Task_Message_Handling( float _time_since_last )
             if( USB_Msg_Length() >= _Message_Length( 't' ) ) {
                 // then process your reset by setting the task_restart flag defined in Lab1_Tasks.h
                 USB_Msg_Get();  // removes the first char of the ring buffer
-                char second = USB_Msg_Get();
+                uint8_t second = USB_Msg_Get();
 
                 // switch for the second input cc
                 switch( second ) {
-                    case '0':  // Time Now
+                    case 0:  // Time Now
                         Task_Activate( &task_send_time, -1 );
                         break;
 
-                    case '1':  // Time to complete a full loop iteration
+                    case 1:  // Time to complete a full loop iteration
                         Task_Activate( &task_time_loop, -1 );
                         break;
 
@@ -207,16 +207,27 @@ void Task_Message_Handling( float _time_since_last )
         // action specified by the second imput char and returns the time every X milliseconds. If the time is zero or negative it canceles the request.
         case 'T':
             if( USB_Msg_Length() >= _Message_Length( 'T' ) ) {
+                USB_Msg_Get();
                 // then process your reset by setting the task_restart flag defined in Lab1_Tasks.h
-                char second = USB_Msg_Get();
+                uint8_t second = USB_Msg_Get();
+
+                float timing;
+                USB_Msg_Read_Into( &timing, sizeof( timing ) );
+
+                // if( timing <= 0 ) {
+                //     Task_Cancel( &task_send_time );
+                //     Task_Cancel( &task_time_loop );
+                //     command_processed = true;
+                //     break;
+                // }
 
                 switch( second ) {
-                    case '0':  // Time Now
-                        Task_Activate( &task_send_time, -1 );
+                    case 0:  // Time Now
+                        Task_Activate( &task_send_time, timing );
                         break;
 
-                    case '1':  // Time to complete a full loop iteration
-                        Task_Activate( &task_time_loop, -1 );
+                    case 1:  // Time to complete a full loop iteration
+                        Task_Activate( &task_time_loop, timing );
                         break;
 
                     default:  // other
@@ -224,19 +235,13 @@ void Task_Message_Handling( float _time_since_last )
                         break;
                 }
 
-                // returns the time every X milliseconds. If the time is zero or negative it canceles the request.
-                // if( time > 0 ) {
-
-                //     return;
-                //     else return;
-                // }
-
                 command_processed = true;
             }
             break;
         default:
             // What to do if you dont recognize the command character
             USB_Send_Byte( '^' );
+            // USB_Flush_Input_Buffer();
             break;
     }
 
@@ -255,7 +260,7 @@ void Task_Message_Handling( float _time_since_last )
  */
 void Task_Message_Handling_Watchdog( float _unused_ )
 {
-    // USB_Flush_Input_Buffer();
+    USB_Flush_Input_Buffer();
 }
 
 /**

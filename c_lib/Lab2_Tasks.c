@@ -2,19 +2,18 @@
 
 void Send_Loop_Time( float _time_since_last )
 {
-    // float current  = Timing_Get_Micro() * 0.1;
-    // float ret_time = current - _time_since_last;
-    // USB_Send_Msg( "cc", 't', &ret_time, sizeof( ret_time ) );
-    // USB_Send_Msg( "ccf", 'T', &ret_time, sizeof( ret_time ) );
-    static bool isidle     = true;
-    static float runPeriod = 0;
 
-    if( isidle ) {
+    // state machine states: idle, send time
+    static bool isidle     = true;  // static = presistant variable only run first time first time function is called
+    static float runPeriod = 0;     // variable to keep track of the run period size
+
+    if( isidle ) {  //
         isidle                    = false;
         runPeriod                 = task_time_loop.run_period;
         task_time_loop.run_period = 0;
         return;
     }
+
     char command;
     if( runPeriod < 0 ) {
         command = 't';
