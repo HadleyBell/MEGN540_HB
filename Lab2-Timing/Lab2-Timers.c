@@ -66,6 +66,12 @@ void Initialize_Modules( float _time_not_used_ )
     // Setup message handling to get processed at some desired rate.
     Initialize_Task( &task_message_handling, Task_Message_Handling );
 
+    Initialize_Task( &task_send_time, Send_Time_Now );
+
+    Initialize_Task( &task_time_loop, Send_Loop_Time );
+
+    Task_Activate( &task_message_handling, 0.0 );
+
     // Initialize_Task( &task_message_handling_watchdog, /*watchdog timout period*/,  Task_Message_Handling_Watchdog );
 }
 
@@ -82,6 +88,8 @@ int main( void )
 
         Task_Run_If_Ready( &task_message_handling );
         Task_Run_If_Ready( &task_restart );
+        Task_Run_If_Ready( &task_send_time );
+        Task_Run_If_Ready( &task_time_loop );
 
         // Task_Run_If_Ready( &task_message_handling_watchdog );
     }

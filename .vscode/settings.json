@@ -23,6 +23,7 @@
         "files.associations": {
                 "lab1_tasks.h": "c",
                 "serialio.h": "c",
-                "ring_buffer.h": "c"
+                "ring_buffer.h": "c",
+                "lab2_tasks.h": "c"
         }
 }

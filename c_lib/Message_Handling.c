@@ -57,8 +57,9 @@ void Task_Message_Handling( float _time_since_last )
     // Get Your command designator without removal so if their are not enough
     // bytes yet, the command persists
     char command = USB_Msg_Peek();
+    // char second  = USB_Msg_Get();
 
-    bool command_processed = false; // /* MEGN540 -- LAB 2 */ 
+    bool command_processed = false;  // /* MEGN540 -- LAB 2 */
 
     // process command
     switch( command ) {
@@ -174,33 +175,62 @@ void Task_Message_Handling( float _time_since_last )
             if( USB_Msg_Length() >= _Message_Length( '~' ) ) {
                 // then process your reset by setting the task_restart flag defined in Lab1_Tasks.h
                 USB_Msg_Get();
-                USB_Send_Byte(0);
-                Task_Activate(&task_restart, -1);
+                USB_Send_Byte( 0 );
+                Task_Activate( &task_restart, -1 );
                 command_processed = true;
             }
+        // Return the time it requested followed by the time to complete the action specified by the second imput char.
         case 't':
             if( USB_Msg_Length() >= _Message_Length( 't' ) ) {
                 // then process your reset by setting the task_restart flag defined in Lab1_Tasks.h
-                USB_Msg_Get();
-                struct __attribute__( ( __packed__ ) ) {
-                    float v1;
-                } data;
-                 USB_Msg_Read_Into( &data, sizeof( data ) );
+                USB_Msg_Get();  // removes the first char of the ring buffer
+                char second = USB_Msg_Get();
 
-                if(data.v1 == 0){
-                    Send_Time_Now(Timing_Get_Time().millisec);
-                }else if(data.v1 == 1){
-                    Send_Loop_Time(Timing_Get_Time().microsec);
+                // switch for the second input cc
+                switch( second ) {
+                    case '0':  // Time Now
+                        Task_Activate( &task_send_time, -1 );
+                        break;
+
+                    case '1':  // Time to complete a full loop iteration
+                        Task_Activate( &task_time_loop, -1 );
+                        break;
+
+                    default:  // other
+                        USB_Send_Msg( "c", '?', 0, 0 );
+                        break;
                 }
-                
+
                 command_processed = true;
             }
+        // Return the time it requested followed by the time to complete the
+        // action specified by the second imput char and returns the time every X milliseconds. If the time is zero or negative it canceles the request.
         case 'T':
             if( USB_Msg_Length() >= _Message_Length( 'T' ) ) {
                 // then process your reset by setting the task_restart flag defined in Lab1_Tasks.h
-                USB_Msg_Get();
-                
-                Send_Time_Now();
+                char second = USB_Msg_Get();
+
+                switch( second ) {
+                    case '0':  // Time Now
+                        Task_Activate( &task_send_time, -1 );
+                        break;
+
+                    case '1':  // Time to complete a full loop iteration
+                        Task_Activate( &task_time_loop, -1 );
+                        break;
+
+                    default:  // other
+                        USB_Send_Msg( "c", '?', 0, 0 );
+                        break;
+                }
+
+                // returns the time every X milliseconds. If the time is zero or negative it canceles the request.
+                // if( time > 0 ) {
+
+                //     return;
+                //     else return;
+                // }
+
                 command_processed = true;
             }
             break;
@@ -213,7 +243,7 @@ void Task_Message_Handling( float _time_since_last )
     //********* MEGN540 -- LAB 2 ************//
     if( command_processed ) {
         // RESET the WATCHDOG TIMER
-        Task_Activate( &task_message_handling_watchdog );
+        Task_Activate( &task_message_handling_watchdog, 0.0 );
     }
 }
 
@@ -225,7 +255,7 @@ void Task_Message_Handling( float _time_since_last )
  */
 void Task_Message_Handling_Watchdog( float _unused_ )
 {
-    USB_Flush_Input_Buffer();
+    // USB_Flush_Input_Buffer();
 }
 
 /**
