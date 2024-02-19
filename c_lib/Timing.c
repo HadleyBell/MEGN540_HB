@@ -29,12 +29,15 @@
 */
 
 #include "../c_lib/Timing.h"
+#include "../c_lib/SerialIO.h"
 
 /** These define the internal counters that will be updated in the ISR to keep track of the time
  *  The volatile keyword is because they are changing in an ISR, the static means they are not
  *  visible (not global) outside of this file.
  */
 static volatile uint32_t _count_ms = 0;
+static volatile uint32_t _last_loop_micro = 0;
+
 
 /**
  * Function Initialize_Timing initializes Timer0 to have a prescalar of XX and initializes the compare
@@ -57,22 +60,24 @@ void Initialize_Timing()
     // enable timing
 
     // Noral Operation OC0A Disconnected 
-    TCCR0A |= ( 0 << COM0A0 );
-    TCCR0A |= ( 0 << COM0A1 );
+    TCCR0A |= ( ( 0 << COM0A0 ) | ( 0 << COM0A1 ) );
 
     // Waveform Clear Timer on Compare Match 
-    TCCR0A |= ( 0 << WGM00 );
-    TCCR0A |= ( 1 << WGM01 ); 
+    TCCR0A |= ( ( 1 << WGM00 ) | ( 1 << WGM01 ) );
     TCCR0B |= ( 0 << WGM02 );
 
     // Clock Prescallar / 64
-    TCCR0B |= ( 1 << CS00 );
-    TCCR0B |= ( 1 << CS01 );
-    TCCR0B |= ( 0 << CS02 );
+    TCCR0B |= ( ( 1 << CS00 ) | ( 1 << CS01 ) | ( 0 << CS02 ) );
 
     // set compare value in register 
     OCR0A = 249;
-    // OCR0A |= ( 1 << OCR0A1 )  // not sure if I need to set them indivualy
+    
+    // set counter 0
+    TCNT0 = 0; 
+
+    // enable interupts 
+    TIMSK0 |= ( 1 << OCIE0A );
+    sei(); 
 
 
     _count_ms = 0;
@@ -105,12 +110,9 @@ Time_t Timing_Get_Time()
     // *** MEGN540 Lab 2 ***
     // YOUR CODE HERE
 
-    // Get value of counter register 
-    uint_8 temp_read = TCNT0; 
-
     Time_t time = {
         .millisec = _count_ms,
-        .microsec = temp_read * 4; // for 4 us per fount 
+        .microsec = TCNT0 * 4 // get value and 4 us per count 
     };
 
     return time;
@@ -130,7 +132,7 @@ uint16_t Timing_Get_Micro()
     // *** MEGN540 Lab 2 ***
     // YOUR CODE HERE
 
-    uint_8 temp_read = OCR0A; 
+    uint8_t temp_read = OCR0A; 
     return temp_read * 4;  
 }
 
@@ -159,7 +161,7 @@ float Timing_Seconds_Since( const Time_t* time_start_p )
 /** This is the Interrupt Service Routine for the Timer0 Compare A feature.
  * You'll need to set the compare flags properly for it to work.
  */
-ISR( TIMER0_COMPA_vec )
+ISR( TIMER0_COMPA_vect )
 {
     // *** MEGN540 Lab 2 ***
     // YOUR CODE HERE
@@ -171,6 +173,28 @@ ISR( TIMER0_COMPA_vec )
     // reset Timer0 
     TCNT0 = 0; 
 
-    // this is called every time the compare flag is executed I think 
+    // if ( _count_ms % 1000 == 0 ) {
+    //     float temp = _count_ms / 1000; 
+    //     // USB_Send_Byte( temp );
 
+    //     // USB_Send_Str( temp )
+        
+    //     // float ret_val = value_left * value_right;
+    //     USB_Send_Msg( "cf", '-', &temp, sizeof( temp ) );
+
+    // }
+}
+
+
+uint32_t Timing_Set_Loop_Time( const Time_t start_time ) 
+{  
+    // loop time in micro seconds (milli + micro)
+    _last_loop_micro = Timing_Get_Micro() - start_time.microsec;
+    return _last_loop_micro;
+}
+
+
+uint32_t Timing_Get_Loop_Time() 
+{
+    return _last_loop_micro;
 }

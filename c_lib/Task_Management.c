@@ -1,5 +1,4 @@
 #include "Task_Management.h"
-
 #include "Timing.h"
  
 /** Function Initialize_Task initializes the task to a default state that is inactive.
@@ -25,9 +24,7 @@ void Task_Activate( Task_t* task, float run_period )
 
     task->is_active = true; 
     task->run_period = run_period; 
-
-    // lab 2
-    // task set time now 
+    Task_Update_Timing( task ); 
 }
 
 /**
@@ -42,10 +39,10 @@ void Task_ReActivate( Task_t* task )
     // Here you should change the state of the is_active member and set the time to now (lab 2)
     // to identify the task is active
 
+    // reactivate
     task->is_active = true; 
-
-    // lab 2
     // task set time now 
+    Task_Update_Timing( task );
 }
 
 /** Function Task_Cancel changes the internal state to disable the task **/
@@ -55,8 +52,16 @@ void Task_Cancel( Task_t* task )
     // Here you should change the state of the is_active member
     // to identify the task is inactive
 
+    // deactivate task 
     task->is_active = false; 
 }
+
+// Function Task_Is_Active helpter function 
+bool Task_Is_Active( Task_t* task ) 
+{
+    return task->is_active; 
+}
+
 
 /** Function Task_Is_Ready indicates if the task should be run. It checks both
  * the active status and the timing.
@@ -67,10 +72,20 @@ bool Task_Is_Ready( Task_t* task )
     // Note a run_period of 0 indicates the task should be run every time if it is active.
     // return false;  // MEGN540 Update to set the return statement based on is_active and time_last_ran.
 
-    return task->is_active; 
+    // check if task active 
+    if ( Task_Is_Active( task ) ) {
+        // if 0 or -1 run 
+        if ( task->run_period == 0 || task->run_period == -1) { 
+            return true;
+        }
+        // check timing since last run 
+        if ( task->time_last_ran.millisec + task->run_period <= Timing_Get_Milli() ) {
+            return true;  
+        }
+    }
 
-    // lab 2
-    // need to check timing with run_period 
+    // dont run if not active or not sufficent time 
+    return false; 
 }
 
 /**
@@ -87,13 +102,17 @@ void Task_Run( Task_t* task )
     // Note that a negative run_period indicates the task should only be performed once, while
     // a run_period of 0 indicates the task should be run every time if it is active.
 
+    // if task function not null 
     if ( task->task_fcn_ptr != 0 ) {
-        // float time_since_last = 
+        // run task function 
         task->task_fcn_ptr( task->time_last_ran.millisec );
+        // update last time to current time 
+        Task_Update_Timing( task ); 
+        // deactive run period -1 
+        if ( task->run_period == -1 ) { 
+            Task_Cancel( task ); 
+        }
     }
-
-    // Should this be 
-    // task->is_active = false; 
 }
 
 /** Function Task_Run_If_Ready Function Task_Run_If_Ready checks to see if the given task is ready for execution, executes the task,
@@ -108,14 +127,17 @@ bool Task_Run_If_Ready( Task_t* task )
     //
     // Run it if it is ready
 
+    // check if ready 
     if ( Task_Is_Ready( task )) {
         Task_Run( task );
     }
 
     // return Task_Is_Ready( task ); 
     return false;
+}
 
-    // lab 2
-    // expand on chekcing if task pointer null and timing
-    // return false;  // true if it ran, false if it did not run
+// update timing of task milli and micro 
+void Task_Update_Timing( Task_t* task ) {
+    task->time_last_ran.millisec = Timing_Get_Milli();
+    task->time_last_ran.microsec = Timing_Get_Micro();
 }

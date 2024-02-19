@@ -37,7 +37,7 @@
 #include "Lab1_Tasks.h"
 #include "Lab2_Tasks.h"
 
-// put your global variables (only if absolutely required) here.
+// put your global variables (only if absolutely required) here.task_send_time
 // Best to identify them as "static" to make them indentified as internal and start with a "_" to identify as internal.
 // Try to initialize them if possible, so their values are never arbitrary.
 
@@ -55,7 +55,7 @@ void Initialize_Modules( float _time_not_used_ )
     // Initialize (reinitialize) all global variables
 
     // reset USB input buffers
-    USB_Flush_Input_Buffer();
+    USB_Flush_Input_Buffer(); 
 
     // Initialize all modules except USB (it can only be called once without messing things up)
     Initialize_Timing();
@@ -65,8 +65,15 @@ void Initialize_Modules( float _time_not_used_ )
 
     // Setup message handling to get processed at some desired rate.
     Initialize_Task( &task_message_handling, Task_Message_Handling );
-
     // Initialize_Task( &task_message_handling_watchdog, /*watchdog timout period*/,  Task_Message_Handling_Watchdog );
+
+    Task_Activate( &task_message_handling, 0 ); 
+
+    // timing tasks 
+    // Send_Loop_Time(1.001);
+    Initialize_Task( &task_time_loop, Send_Loop_Time );
+    Initialize_Task( &task_send_time, Send_Time_Now );
+
 }
 
 /** Main program entry point. This routine configures the hardware required by the application, then
@@ -78,11 +85,24 @@ int main( void )
     Initialize_Modules( 0.0 );
 
     for( ;; ) {  // yet another way to do while (true)
+        Time_t loop_start_time = Timing_Get_Time(); 
+
         Task_USB_Upkeep();
 
         Task_Run_If_Ready( &task_message_handling );
         Task_Run_If_Ready( &task_restart );
 
-        // Task_Run_If_Ready( &task_message_handling_watchdog );
+        // timing 
+        Task_Run_If_Ready( &task_send_time );
+        Task_Run_If_Ready( &task_time_loop );
+
+
+        Task_Run_If_Ready( &task_message_handling_watchdog );
+
+
+
+
+
+        Timing_Set_Loop_Time( loop_start_time ); 
     }
 }

@@ -50,15 +50,22 @@ void Task_Message_Handling( float _time_since_last )
     // If it just is a USB thing, do it here, if it requires other hardware, do it
     // in the main and set a flag to have it done here.
 
+    // USB_Send_Byte( 2 );
+
+
+    // rb_push_back_B(&_usb_send_buffer, 1);
+
     // Check to see if their is data in waiting
     if( !USB_Msg_Length() )
         return;  // nothing to process...
 
     // Get Your command designator without removal so if their are not enough
     // bytes yet, the command persists
+
     char command = USB_Msg_Peek();
 
-    // /* MEGN540 -- LAB 2 */ bool command_processed = false;
+    // /* MEGN540 -- LAB 2 */ 
+    bool command_processed = false;
 
     // process command
     switch( command ) {
@@ -89,7 +96,8 @@ void Task_Message_Handling( float _time_since_last )
                 // Call MEGN540_Lab_Task Function
                 Multiply_And_Send( data.v1, data.v2 );
 
-                // /* MEGN540 -- LAB 2 */ command_processed = true;
+                // /* MEGN540 -- LAB 2 */ 
+                command_processed = true;
             }
             break;
         case '/':
@@ -106,7 +114,8 @@ void Task_Message_Handling( float _time_since_last )
                 USB_Msg_Read_Into( &data, sizeof( data ) );
                 Divide_And_Send( data.v1, data.v2 );
 
-                // /* MEGN540 -- LAB 2 */ command_processed = true;
+                // /* MEGN540 -- LAB 2 */ 
+                command_processed = true;
             }
             break;
         case '+':
@@ -123,7 +132,8 @@ void Task_Message_Handling( float _time_since_last )
                 USB_Msg_Read_Into( &data, sizeof( data ) );
                 Add_And_Send( data.v1, data.v2 );
 
-                // /* MEGN540 -- LAB 2 */ command_processed = true;
+                // /* MEGN540 -- LAB 2 */ 
+                command_processed = true;
             }
             break;
         case '-':
@@ -140,7 +150,8 @@ void Task_Message_Handling( float _time_since_last )
                 USB_Msg_Read_Into( &data, sizeof( data ) );
                 Subtract_And_Send( data.v1, data.v2 );
 
-                // /* MEGN540 -- LAB 2 */ command_processed = true;
+                // /* MEGN540 -- LAB 2 */ 
+                command_processed = true;
             }
             break;
         case '~':
@@ -149,27 +160,140 @@ void Task_Message_Handling( float _time_since_last )
 
                 // task cancel 
                 // clear all buffers ? 
-                USB_Send_Byte( 0 ); 
+                // USB_Send_Byte( 0 ); 
+
+                USB_Send_Byte( 0x6 ); 
+                USB_Send_Byte( 0x66 ); 
+                USB_Send_Byte( 0x0 );  
+                USB_Send_Byte( 0x0 ); 
+                USB_Send_Byte( 0x0 ); 
+                USB_Send_Byte( 0x0 ); 
+                USB_Send_Byte( 0x0 );
 
                 Task_ReActivate( &task_restart );
 
-                // /* MEGN540 -- LAB 2 */ command_processed = true;
+                // /* MEGN540 -- LAB 2 */ 
+                command_processed = true;
             }
             break;
+        case 't': 
+            if( USB_Msg_Length() >= _Message_Length( 't' ) ) {
+                // remove first character the 't' 
+                USB_Msg_Get();
+                // remove comand char 
+                char command_char = USB_Msg_Get(); 
+
+                // switch depending on command char 
+                switch (command_char)
+                {
+                case '0':
+                    // send time now 
+                    Task_Activate( &task_send_time, -1.0 ); // execute task once 
+                    break;
+                case '1':
+                    // send loop time
+                    Task_Activate( &task_time_loop, -1.0 ); // execute task once 
+                    break;
+                default:
+                    // send ? followed by user command 
+                    USB_Send_Msg( "cc", '?', &command_char, sizeof( command_char ) ); 
+                    break;
+                }
+
+                // float time_start = _time_since_last;
+                // // something timing related to time how long the function takes 
+                // // need to execute again and then time it 
+                // Task_Message_Handling( _time_since_last ); // not sure what timing input 
+
+                // float time_end = Timing_Get_Milli(); 
+                // float time_total = time_end - time_start;
+                
+                // USB_Send_Msg( "cf", ' ', &time_total, sizeof( time_total ) );
+                // // USB_Send_Msg( "cf", '-', &ret_val, sizeof( ret_val ) );   
+                
+                // process command 
+                command_processed = true;             
+            }
+            break; 
+        case 'T':  
+            if( USB_Msg_Length() >= _Message_Length( 'T' ) ) {
+                // return the time of computing the second 'c' every X ms specified by input 
+                // remove first character the 't' 
+                USB_Msg_Get();
+                // remove comand char 
+                char command_char = USB_Msg_Get(); 
+                float time_interval;
+                USB_Msg_Read_Into( &time_interval, sizeof( time_interval ) ); 
+
+                switch ( command_char )
+                {
+                case '0':
+                    if( time_interval > 0 ) {
+                        Task_Activate( &task_send_time, time_interval ); // activate on interval
+                    } else {
+                        Task_Cancel( &task_send_time ); 
+                    }
+                    break;
+                case '1':
+                    if( time_interval > 0 ) {
+                        Task_Activate( &task_time_loop, time_interval ); // activate on interval
+                    } else {
+                        Task_Cancel( &task_time_loop ); 
+                    }
+                    break;
+                default:
+                    // send ? followed by user command 
+                    USB_Send_Msg( "cc", '?', &command_char, sizeof( command_char ) ); 
+                    break;
+                }
+
+                // uint8_t timing_operation = USB_Msg_Get();
+
+                // uint8_t timing_interval = USB_Msg_Get(); 
+
+                // do I want to make this a Task? It seems like it make a task with update time 
+                // -1 or zero cancels rquest 
+
+
+                // float time_start = _time_since_last;
+
+                // // something timing related to time how long the function takes 
+                // // need to execute again and then time it 
+                // Task_Message_Handling( _time_since_last ); // not sure what timing input 
+
+                // float time_end = Timing_Get_Milli(); 
+                // float time_total = time_end - time_start;
+                
+                USB_Send_Msg( "cf", command_char, &time_interval, sizeof( time_interval ) );
+                // USB_Send_Msg( "cf", '-', &ret_val, sizeof( ret_val ) );     
+
+                // process command 
+                command_processed = true; 
+            }
+            
+            break; 
         default:
             // What to do if you dont recognize the command character
+          
+            USB_Send_Byte( 0x3 ); 
+            USB_Send_Byte( 0x63 ); 
+            USB_Send_Byte( 0x0 );  
+            USB_Send_Byte( 0x3f );
 
-            USB_Send_Byte( '?' );
             USB_Flush_Input_Buffer(); 
+
+
+            // still have an issue with the buffer somehow 
 
             break;
     }
 
     //********* MEGN540 -- LAB 2 ************//
-    // if( command_processed ) {
-    //     // RESET the WATCHDOG TIMER
-    //     Task_Activate( &task_message_handling_watchdog );
-    // }
+    if( command_processed ) {
+        // RESET the WATCHDOG TIMER
+        Task_Activate( &task_message_handling_watchdog, 0.0 );
+    }
+
 }
 
 /**
@@ -180,7 +304,15 @@ void Task_Message_Handling( float _time_since_last )
  */
 void Task_Message_Handling_Watchdog( float _unused_ )
 {
-    USB_Flush_Input_Buffer();
+    // if task was active for more than 
+    if( ( Timing_Get_Milli() - _unused_ ) >= 250 ) 
+    {
+        // send wathdog message and rest 
+        char command = '?';
+        USB_Send_Msg( "cc", 'W', &command, sizeof( command ) );
+        USB_Flush_Input_Buffer();
+        Task_Cancel( &task_message_handling_watchdog ); 
+    }
 }
 
 /**

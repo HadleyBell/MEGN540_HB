@@ -79,8 +79,15 @@ static void _USB_Read_Data()
     // how the function above is working then interact at a slightly lower level, but still higher than
     // register level.
 
+
+    /* Device must be connected and configured for the task to run */
+    if( USB_DeviceState != DEVICE_STATE_Configured )
+        return;
+
     /* Select the Serial Rx Endpoint */
     Endpoint_SelectEndpoint( CDC_RX_EPADDR );
+
+
 
     // check if there is data 
     if( Endpoint_IsOUTReceived() ) {
@@ -117,16 +124,18 @@ static void _USB_Write_Data()
     // how the function above is working then interact at a slightly lower level, but still higher than
     // register level.
 
+    /* Device must be connected and configured for the task to run */
+    if( USB_DeviceState != DEVICE_STATE_Configured )
+        return;
+
     /* Select the SerialUSB_Send_Byte Tx Endpoint */
     Endpoint_SelectEndpoint( CDC_TX_EPADDR );
-
 
     // /* Remember how large the incoming packet is */
     uint8_t DataLength = rb_length_B( &_usb_send_buffer );
     uint8_t tx_length = CDC_TXRX_EPSIZE; // 16 
 
-    // Endpoint_Write_8( 0x34 ); 
-
+    // Write till data buffer empty or all data has been written 
     while (tx_length != 0 && DataLength != 0 ) 
     {
         Endpoint_Write_8( rb_pop_front_B( &_usb_send_buffer ) ); 
@@ -270,7 +279,7 @@ void USB_Send_Msg( char* format, char cmd, void* p_data, uint8_t data_len )
     USB_Send_Byte( message_length );
     USB_Send_Str( format );
     USB_Send_Byte( cmd );
-    USB_Send_Data( p_data, data_len );
+    USB_Send_Data( p_data, data_len ); 
 }
 
 /**
