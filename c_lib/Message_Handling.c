@@ -241,6 +241,7 @@ void Task_Message_Handling( float _time_since_last )
         default:
             // What to do if you dont recognize the command character
             USB_Send_Byte( '^' );
+            // um comment this line if you want to stop the display of each command on top of one another.
             // USB_Flush_Input_Buffer();
             break;
     }

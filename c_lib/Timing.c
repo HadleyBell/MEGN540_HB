@@ -131,7 +131,6 @@ ISR( TIMER0_COMPA_vect )  // DEFINE THE COMPARISON TRIGGER
     // YOUR CODE HERE
     // YOU NEED TO RESET THE Timer0 Value to 0 again!
     // TCNT0 = 0;
-    // Initialize_Timing();
 
     // take care of upticks of both our internal and external variables.
     _count_ms++;
