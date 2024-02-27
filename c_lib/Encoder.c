@@ -18,29 +18,31 @@ static volatile int32_t _right_counts = 0;  // Static limits it's use to this fi
 // Hint, use avr's bit_is_set function to help
 static inline bool Right_XOR()
 {
-    return 0;
-}  // MEGN540 Lab 3 TODO
+    return bit_is_set( PINE, 6 );
+} 
 static inline bool Right_B()
 {
-    return 0;
-}  // MEGN540 Lab 3 TODO
+    return bit_is_set( PINF, 0 );
+}  
 static inline bool Right_A()
 {
-    return 0;
-}  // MEGN540 Lab 3 TODO
+    // reconstructing A from B and XOR, (A XOR B) XOR B = A
+    return Right_XOR() ^ Right_B();
+}  
 
 static inline bool Left_XOR()
 {
-    return 0;
-}  // MEGN540 Lab 3 TODO
+    return bit_is_set( PINB, 4 );
+}  
 static inline bool Left_B()
 {
-    return 0;
-}  // MEGN540 Lab 3 TODO
+    return bit_is_set( PINE, 2 );
+}  
 static inline bool Left_A()
 {
-    return 0;
-}  // MEGN540 Lab 3 TODO
+    // reconstructing A from B and XOR
+    return Left_XOR() ^ Left_B();
+}  
 
 /**
  * Function Encoders_Init initializes the encoders, sets up the pin change interrupts, and zeros the initial encoder
@@ -127,16 +129,61 @@ float Encoder_Rad_Right()
  * the Pin Change Interrupts can trigger for multiple pins.
  * @return
  */
-// ISR()
-//{
-//
-//}
+ISR( PCINT0_vect )
+{
+    // general vector for all PCINT
+    // PCINT4 is on PB4 
+
+
+    // check if 
+    if ( Left_XOR() ) {
+        // execute action 
+        _last_left_XOR = 1;
+    } else {
+        _last_left_XOR = 0; 
+    }
+
+    // get current bool values for a and b from registers
+    bool _current_left_B = Left_B();
+    bool _current_left_A = Left_A();
+
+
+    // update left counts based on rotation direction 
+    // A rises before B rises and A falls before B falls p.18
+    _left_counts
+
+    // could be two different directions 
+
+    //     For maxon catalog encoder the following definition applies (if not specified otherwise):
+    // If the motor shaft rotates clockwise (CW), channel A leads channel B.
+    // If the motor shaft rotates counter clockwise (CCW), channel B leads channel A.
+
+    // if XOR triggered means A not same as B 
+    if ( _last_left_XOR == 1 ) {
+        if ( _last_left_A == 0 && _current_left_A == 1 ) {
+            if ( _last_left_B == 0 && _current_left_B == 1 ) {
+
+            } 
+            // check here something with direction
+            // else if ( _last_left_B == 1 && _current_left_B == 0 ) {
+                
+            }
+        }
+    }
+
+
+    // current to last update B, XOR, A for left
+    _last_left_B = _current_left_B;
+    _last_left_XOR = Left_XOR();
+    _last_left_A = _current_left_A;
+
+}
 
 /**
  * Interrupt Service Routine for the right Encoder.
  * @return
  */
-// ISR()
-//{
-//
-//}
+ISR( INT6_vect )
+{
+
+}
