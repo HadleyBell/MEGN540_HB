@@ -131,51 +131,51 @@ float Encoder_Rad_Right()
  */
 ISR( PCINT0_vect )
 {
-    // general vector for all PCINT
-    // PCINT4 is on PB4 
+    // // general vector for all PCINT
+    // // PCINT4 is on PB4 
 
 
-    // check if 
-    if ( Left_XOR() ) {
-        // execute action 
-        _last_left_XOR = 1;
-    } else {
-        _last_left_XOR = 0; 
-    }
+    // // check if 
+    // if ( Left_XOR() ) {
+    //     // execute action 
+    //     _last_left_XOR = 1;
+    // } else {
+    //     _last_left_XOR = 0; 
+    // }
 
-    // get current bool values for a and b from registers
-    bool _current_left_B = Left_B();
-    bool _current_left_A = Left_A();
+    // // get current bool values for a and b from registers
+    // bool _current_left_B = Left_B();
+    // bool _current_left_A = Left_A();
 
 
-    // update left counts based on rotation direction 
-    // A rises before B rises and A falls before B falls p.18
-    _left_counts
+    // // update left counts based on rotation direction 
+    // // A rises before B rises and A falls before B falls p.18
+    // _left_counts
 
-    // could be two different directions 
+    // // could be two different directions 
 
-    //     For maxon catalog encoder the following definition applies (if not specified otherwise):
-    // If the motor shaft rotates clockwise (CW), channel A leads channel B.
-    // If the motor shaft rotates counter clockwise (CCW), channel B leads channel A.
+    // //     For maxon catalog encoder the following definition applies (if not specified otherwise):
+    // // If the motor shaft rotates clockwise (CW), channel A leads channel B.
+    // // If the motor shaft rotates counter clockwise (CCW), channel B leads channel A.
 
-    // if XOR triggered means A not same as B 
-    if ( _last_left_XOR == 1 ) {
-        if ( _last_left_A == 0 && _current_left_A == 1 ) {
-            if ( _last_left_B == 0 && _current_left_B == 1 ) {
+    // // if XOR triggered means A not same as B 
+    // if ( _last_left_XOR == 1 ) {
+    //     if ( _last_left_A == 0 && _current_left_A == 1 ) {
+    //         if ( _last_left_B == 0 && _current_left_B == 1 ) {
 
-            } 
-            // check here something with direction
-            // else if ( _last_left_B == 1 && _current_left_B == 0 ) {
+    //         } 
+    //         // check here something with direction
+    //         // else if ( _last_left_B == 1 && _current_left_B == 0 ) {
                 
-            }
-        }
-    }
+    //         }
+    //     }
+    // }
 
 
-    // current to last update B, XOR, A for left
-    _last_left_B = _current_left_B;
-    _last_left_XOR = Left_XOR();
-    _last_left_A = _current_left_A;
+    // // current to last update B, XOR, A for left
+    // _last_left_B = _current_left_B;
+    // _last_left_XOR = Left_XOR();
+    // _last_left_A = _current_left_A;
 
 }
 

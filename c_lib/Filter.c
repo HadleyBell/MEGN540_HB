@@ -142,7 +142,8 @@ float Filter_Value( Filter_Data_t* p_filt, float value )
     float b0 = rb_pop_front_F( &p_filt->numerator );
     float a0 = rb_pop_front_F( &p_filt->denominator );
     float in_n = value;
-    float out_n = rb_pop_front_F( &p_filt->out_list ); // pop oldest y_1 where y_n is now
+    // don't need to store oldest out
+    rb_pop_front_F( &p_filt->out_list ); // pop oldest y_1 where y_n is now
     
     // add the numerator and denominator to back
     rb_push_back_F( &p_filt->numerator, b0 );
