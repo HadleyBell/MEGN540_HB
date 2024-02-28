@@ -103,4 +103,7 @@ void Task_Run( Task_t* task );
  */
 bool Task_Run_If_Ready( Task_t* task );
 
+
+void Task_Update_Timing( Task_t* task );
+
 #endif

@@ -1,5 +1,5 @@
 # I target a recent cmake, it shouldn't be a problem on a dev machine
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
 
 ## AVR Chip Configuration
 # 16Mhz, this should match the crystal on your board,
@@ -11,6 +11,8 @@ set(F_CPU 16000000UL)
 set(AVR_UPLOADTOOL avrdude)
 set(AVR_PROGRAMMER avr109)
 set(AVR_UPLOADTOOL_PORT /dev/ttyZumoCarAVR)
+# set(AVR_UPLOADTOOL_PORT /dev/serial/by-path/pci-0000:00:14.0-usb-0:1.1:1.0)
+# set(AVR_UPLOADTOOL_PORT /dev/serial/by-path/pci-0000:00:14.0-usb-0:2:1.0)
 
 ##########################################################################
 # AVR and fuses needs to be set

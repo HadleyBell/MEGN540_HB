@@ -36,7 +36,7 @@
 // static makes these global scope only to this c file
 static const uint8_t RB_MASK_F = RB_LENGTH_F - 1;
 static const uint8_t RB_MASK_B = RB_LENGTH_B - 1;
-
+ 
 /* Initialization */
 void rb_initialize_F( Ring_Buffer_Float_t* p_buf )
 {
@@ -45,12 +45,11 @@ void rb_initialize_F( Ring_Buffer_Float_t* p_buf )
     p_buf->start_index = 0;
     p_buf->end_index   = 0;
 }
-
+ 
 void rb_initialize_B( Ring_Buffer_Byte_t* p_buf )
 {
     // set start and end indicies to 0
     // no point changing data
-
     p_buf->start_index = 0;
     p_buf->end_index   = 0;
 }

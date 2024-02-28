@@ -44,6 +44,9 @@
 #    warning RB_LENGTH_F has been defined outside of filter.h, care should be taken that it is large enough for the filter to use.
 #endif
 
+// define counts per rad from 75.81 × 12 ≈ 909.7 CPR
+#define _count_per_rad 75.81 * 12 * 0.5 / 3.14159
+
 #include "Ring_Buffer.h"
 
 typedef struct {
@@ -101,5 +104,9 @@ float Filter_Value( Filter_Data_t* p_filt, float value );
  * @return The latest filtered value
  */
 float Filter_Last_Output( Filter_Data_t* p_filt );
+
+// Function print_rb 
+// printing values in a given ring buffer
+void print_rb(Ring_Buffer_Float_t* print_f);
 
 #endif

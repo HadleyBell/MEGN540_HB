@@ -81,4 +81,8 @@ float  Timing_Get_Time_Sec();
  */
 float  Timing_Seconds_Since(const Time_t* time_start_p );
 
+
+uint32_t Timing_Set_Loop_Time( const Time_t start_time );
+uint32_t Timing_Get_Loop_Time();
+
 #endif //LAB2_TIMING_TIMING_H
