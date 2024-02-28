@@ -37,13 +37,17 @@
 #ifndef LAB0_BLINK_LED_INTERFACE_H
 #    define LAB0_BLINK_LED_INTERFACE_H
 
-#    define initialize_LED() DDRC |= ( 1 << DDC7 )  // Make pin 13 be an output.
+// #    define initialize_LED() DDRC |= ( 1 << DDC7 )  // Make pin 13 be an output.
+#    define initialize_LED() DDRB |= ( 1 << DDB4 )  // Make pin 13 be an output.
 
-#    define LED_ON() PORTC |= ( 1 << PORTC7 )  // Turn the LED on.
+// #    define LED_ON() PORTC |= ( 1 << PORTC7 )  // Turn the LED on.
+#    define LED_ON() PORTB |= ( 1 << PORTB4 )  // Turn the LED on.
 
-#    define LED_TOGGLE() PORTC ^= ( 1 << PORTC7 )  // Toggles the led state
+// #    define LED_TOGGLE() PORTC ^= ( 1 << PORTC7 )  // Toggles the led state
+#    define LED_TOGGLE() PORTB ^= ( 1 << PORTB4 )  // Toggles the led state
 
-#    define LED_OFF() PORTC &= ~( 1 << PORTC7 )  // Turn the LED off.
+// #    define LED_OFF() PORTC &= ~( 1 << PORTC7 )  // Turn the LED off.
+#    define LED_OFF() PORTB &= ~( 1 << PORTB4 )  // Turn the LED off.
 
 void led_on_block( uint32_t ms );
 void led_off_block( uint32_t ms );

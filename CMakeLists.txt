@@ -10,7 +10,9 @@ set(F_CPU 16000000UL)
 ##########################################################################
 set(AVR_UPLOADTOOL avrdude)
 set(AVR_PROGRAMMER avr109)
-set(AVR_UPLOADTOOL_PORT /dev/ttyZumoCarAVR)
+# set(AVR_UPLOADTOOL_PORT /dev/ttyZumoCarAVR)
+set(AVR_UPLOADTOOL_PORT /dev/serial/by-path/pci-0000:00:14.0-usb-0:1.1:1.0)
+# set(AVR_UPLOADTOOL_PORT /dev/serial/by-path/pci-0000:00:14.0-usb-0:2:1.0)
 
 ##########################################################################
 # AVR and fuses needs to be set
