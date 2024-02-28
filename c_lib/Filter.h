@@ -105,4 +105,8 @@ float Filter_Value( Filter_Data_t* p_filt, float value );
  */
 float Filter_Last_Output( Filter_Data_t* p_filt );
 
+// Function print_rb 
+// printing values in a given ring buffer
+void print_rb(Ring_Buffer_Float_t* print_f);
+
 #endif
