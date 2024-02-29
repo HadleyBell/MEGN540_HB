@@ -1,4 +1,5 @@
 #include "Encoder.h"
+#include "../c_lib/SerialIO.h"
 
 /**
  * Internal counters for the Interrupts to increment or decrement as necessary.
@@ -62,6 +63,43 @@ void Initialize_Encoders()
     // the changes in XOR flag. You'll need to see Sections 11.1.2-11.1.4 for setup and use.
     // You'll use the INT6_vect ISR flag.
 
+    cli();
+
+
+    // global interupt enable, MIHGT ALREADY BE  
+    SREG |= ( 1 << 7 );
+
+    // // set left B channel, Port E 2 as output 
+    // DDRE |= ( 1 << DDE2 );
+    // // set left XOR channel, Port B 4 as output 
+    // DDRB |= ( 1 << DDB6 );
+    // // set left PCIE interupt enabled
+    // PCICR |= ( 1 << PCIE0 );
+    // // set left interupt, Port B 4 
+    // PCMSK0 |= ( 1 << PCINT4 ); 
+
+    
+    // check on if the rising or falling ege should generate interupt ? what should it be  
+
+    // set right B channel, Port F 0 as output 
+    PORTF |= ( 1 << PORTF0 ); 
+    // set right XOR channel, Port E 6 as output 
+    PORTE |= ( 1 << PORTE6 ); 
+    // set right interupt, Port E 6 
+    EIMSK |= ( 1 << INT6 ); 
+    // interupt control, trigger on falling and rising
+    EICRB |= ( ( 0 << ISC61 ) | ( 1 << ISC60 ) );
+    // // interupt control, trigger on falling and rising
+    // EICRB |= ( ( 1 << ISC61 ) | ( 1 << ISC60 ) );
+
+    // CHECK IS IT NORMAL FOR USB TO DISCOONECT IF INTERUPT IS ENABLED ?? 
+    // CAN REINITALIZE IT AT AN INTERVAL 
+
+    // can check PCIFR, PCIF0 if 1 is set 
+
+    // enable interupts 
+    // sei(); 
+
     // Initialize static file variables. These probably need to be updated.
     _last_right_A = 0;  // MEGN540 Lab 3 TODO
     _last_right_B = 0;  // MEGN540 Lab 3 TODO
@@ -72,6 +110,9 @@ void Initialize_Encoders()
 
     _left_counts  = 0;  // MEGN540 Lab 3 TODO
     _right_counts = 0;  // MEGN540 Lab 3 TODO
+
+    // enable interupts 
+    sei();
 }
 
 /**
@@ -85,7 +126,17 @@ int32_t Encoder_Counts_Left()
     // Note: Interrupts can trigger during a function call and an int32 requires
     // multiple clock cycles to read/save. You may want to stop interrupts, copy the value,
     // and re-enable interrupts to prevent this from corrupting your read/write.
-    return 0;
+    
+    // stop interupts 
+    cli();
+
+    // coppy value 
+    int32_t temp_left = _left_counts; 
+
+    // enable interupts
+    sei();
+
+    return temp_left;
 }
 
 /**
@@ -99,7 +150,17 @@ int32_t Encoder_Counts_Right()
     // Note: Interrupts can trigger during a function call and an int32 requires
     // multiple clock cycles to read/save. You may want to stop interrupts, copy the value,
     // and re-enable interrupts to prevent this from corrupting your read/write.
-    return 0;
+
+    // stop interupts 
+    cli();
+
+    // coppy value 
+    int32_t temp_right = _right_counts; 
+
+    // enable interupts
+    sei();
+
+    return temp_right;
 }
 
 /**
@@ -121,7 +182,8 @@ float Encoder_Rad_Right()
 {
     // *** MEGN540 Lab3 ***
     // YOUR CODE HERE.  How many counts per rotation???
-    return 0;
+
+    return _right_counts / _count_per_rad;
 }
 
 /**
@@ -177,6 +239,17 @@ ISR( PCINT0_vect )
     // _last_left_XOR = Left_XOR();
     // _last_left_A = _current_left_A;
 
+    char a = 'L';
+    USB_Send_Msg( "cc",'t', &a, sizeof( a ) );
+   
+   
+    // update last 
+    _last_left_A = Left_A();
+    _last_left_B = Left_B();
+    _last_left_XOR = Left_XOR();
+
+    // enable interupts 
+    sei();
 }
 
 /**
@@ -185,5 +258,84 @@ ISR( PCINT0_vect )
  */
 ISR( INT6_vect )
 {
+    cli(); 
+
+    // char b = 'R';
+    // USB_Send_Msg( "cc",'t', &b, sizeof( b ) );
+
+    uint8_t dir_fun = Motor_Direction( _last_right_A, _last_right_B, Right_A, Right_B );
+
+    // check direction 
+    if ( dir_fun == 0 ) {
+        // increment right_counts 
+        _right_counts++;
+    } else if ( dir_fun == 1 ) {
+        // decrement right_counts 
+        _right_counts--;
+    } 
+
+
+    // sending 
+    // // float 
+    // uint32_t temp = _right_counts;
+    // // send USB message for testing 
+
+    struct __attribute__( ( __packed__ ) ) {
+        bool t1;
+        bool t2;
+        bool t3;
+        bool t4;
+        bool t5;
+        // uint8_t t6;
+    } data;
+    
+    data.t1 = _last_right_A;
+    data.t2 = _last_right_B;
+    data.t3 = Right_A();
+    data.t4 = Right_B();
+    data.t5 = Right_XOR();
+    // data.t6 = dir_fun;
+    // float dir_fun_2 = (float)dir_fun;
+    USB_Send_Msg( "cBBBBB",'1', &data, sizeof( data ) );
+    // USB_Send_Msg( "cf", '2',&dir_fun_2, sizeof( dir_fun_2 ) );
+    // USB_Send_Msg( "cB",'2', &temp2, sizeof( temp2 ) );
+    // USB_Send_Msg( "cB",'3', &temp3, sizeof( temp3 ) );
+    // USB_Send_Msg( "cB",'4', &temp4, sizeof( temp4 ) );
+
+    // update last 
+    _last_right_A = Right_A();
+    _last_right_B = Right_B();
+
+
+    // enable interupts 
+    sei();
+}
+
+
+/**
+ * Function that determines motor direction from encoder
+ * @param last_a prior A channel 
+ * @param last_b prior B channel 
+ * @param current_a current A channel 
+ * @param current_b current B channel
+ * @return uint8_t  0 if  Forward CCW, 1 if Reverse CW, and 2 if else 
+ */
+uint8_t Motor_Direction( bool last_a, bool last_b, bool (*current_a_fun)(), bool (*current_b_fun)() ) {
+    bool current_a = current_a_fun();
+    bool current_b = current_b_fun();
+
+    if ( ( last_a == 0 && last_b == 0 && current_a == 1 && current_b == 0 ) ||
+        ( last_a == 1 && last_b == 0 && current_a == 1 && current_b == 1 ) ||
+        ( last_a == 1 && last_b == 1 && current_a == 0 && current_b == 1 ) ||
+        ( last_a == 0 && last_b == 1 && current_a == 0 && current_b == 0 ) ) {
+            return 0;
+    } else if ( ( last_a == 0 && last_b == 0 && current_a == 0 && current_b == 1 ) ||
+        ( last_a == 0 && last_b == 1 && current_a == 1 && current_b == 1 ) ||
+        ( last_a == 1 && last_b == 1 && current_a == 1 && current_b == 0 ) ||
+        ( last_a == 1 && last_b == 0 && current_a == 0 && current_b == 0 ) ) {
+            return 1;
+    } else {
+        return 2; 
+    }
 
 }

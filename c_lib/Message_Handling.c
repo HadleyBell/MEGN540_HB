@@ -29,6 +29,7 @@
 */
 
 #include "Message_Handling.h"
+#include "Encoder.h"
 
 /**
  * Function _Message_Length returns the number of bytes associated with a command string per the
@@ -270,8 +271,40 @@ void Task_Message_Handling( float _time_since_last )
                 // process command 
                 command_processed = true; 
             }
-            
             break; 
+        case 'e':
+            // return the encoder counts for the left and right
+            if( USB_Msg_Length() >= _Message_Length( 'e' ) ) {
+                // remove first character the 'e' 
+                USB_Msg_Get();
+
+                struct __attribute__( ( __packed__ ) ) {
+                    float left;
+                    float right;
+                } data;
+
+                data.left = ( float ) Encoder_Counts_Left();
+                data.right = ( float ) Encoder_Counts_Right();
+
+                // return encoder coutns left and right 
+                // int32_t left_count = Encoder_Counts_Right;  
+                // int32_t right_count = _right_counts; 
+                USB_Send_Msg( "cff",'e', &data, sizeof( data ) );
+                // USB_Send_Msg( "cff",'e', &data.right, sizeof( data.right ) );
+
+            }
+            break;
+        case 'E':
+            // 
+
+            break;
+        case 'b':
+
+            break;  
+        case 'B':
+
+            break;  
+
         default:
             // What to do if you dont recognize the command character
           

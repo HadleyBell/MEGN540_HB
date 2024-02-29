@@ -42,6 +42,9 @@
 #ifndef _LAB3_ENCODER_H
 #define _LAB3_ENCODER_H
 
+// define counts per rad from 75.81 × 12 ≈ 909.7 CPR
+#define _count_per_rad 75.81 * 12 * 0.5 / 3.14159
+
 #include <avr/interrupt.h> // For Interrupts
 #include <avr/io.h>        // For pin input/output access
 #include <ctype.h>         // For int32_t type
@@ -77,6 +80,16 @@ float Encoder_Rad_Left();
  * @return
  */
 float Encoder_Rad_Right();
+
+/**
+ * Function that determines motor direction from encoder
+ * @param last_a prior A channel 
+ * @param last_b prior B channel 
+ * @param current_a current A channel 
+ * @param current_b current B channel
+ * @return bool TRUE if  Forward CCW and FALSE if Reverse CW
+ */
+uint8_t Motor_Direction( bool last_a, bool last_b, bool (*current_a_fun)(), bool (*current_b_fun)() );
 
 
 #endif
