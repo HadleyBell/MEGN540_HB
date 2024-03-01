@@ -30,14 +30,21 @@ void Initialize_Battery_Monitor()
     // ADMUX |= ( ( 0 << REFS1 ) | ( 0 << REFS0 ) );
     ADMUX |= ( ( 1 << REFS1 ) | ( 1 << REFS0 ) );
 
-
-
     // Setup ADC right adjusted, clear to 0 
     ADMUX &= ~( 1 << ADLAR );
 
     // Disable auto trigger 
     ADCSRA &= ~(1 << ADATE);
 
+    // Specify ADC6
+    ADMUX |= ( ( 0 << MUX4 ) | ( 0 << MUX3 ) | ( 1 << MUX2 ) | ( 1 << MUX1 ) | ( 0 << MUX0 ) ); 
+
+
+    // // testing other 
+    // ADCSRA |= ( 1 << ADEN ); 
+    // ADCSRA |= ( ( 1 << ADPS2 ) | ( 1 << ADPS1 ) | ( 1 << ADPS0 ) ); 
+    // // ADMUX |= ( 1 << REFS0 ); 
+    // ADMUX |= ( ( 1 << REFS1 ) | ( 1 << REFS0 ) );
 
     // LEFT vs. Right adjusted 
 
@@ -68,7 +75,7 @@ float Battery_Voltage()
     ADCSRA |= ( 1 << ADSC ); // pretty sure it should be this bit 6 not 1 
 
     // wait untill conversion is complete 
-    while ( !bit_is_set( ADCSRA, ADSC ) ) {
+    while ( bit_is_set( ADCSRA, ADSC ) ) {
         // wait untill the ACD complete bit is set 
     }
 
@@ -78,8 +85,9 @@ float Battery_Voltage()
 
     // add newest data to filter 
     float newest_in_val = (uint16_t)( ( data.split.MSB << 8 ) | data.split.LSB ); 
-    data.value = Filter_Value( &Voltage_Filter, newest_in_val ); 
-    // data.value = Filter_Value( &Voltage_Filter, newest_in_val * BITS_TO_BATTERY_VOLTS ); 
+    // float newest_in_val = (uint16_t)( data.split.LSB ); 
+    // data.value = Filter_Value( &Voltage_Filter, newest_in_val ); 
+    data.value = Filter_Value( &Voltage_Filter, newest_in_val * BITS_TO_BATTERY_VOLTS ); 
 
     // // update data.value 
     // data.value = (uint16_t)( ( data.split.MSB << 8 ) | data.split.LSB ); 

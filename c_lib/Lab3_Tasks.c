@@ -44,20 +44,21 @@ void Send_Battery_Voltage( float _time_since_last ) {
 
 
 void Update_Battery_Voltage( float _time_since_last ) {
-    // get battery voltage update with filter
-    float current_voltage = Battery_Voltage();
+    // // get battery voltage update with filter
+    Battery_Voltage();
+    // float current_voltage = Battery_Voltage();
 
-    // check if voltage is too low 
-    float min_voltage = 4.2; // equating to 1.05 V per cell nominal 1.2 V
-    // ALSO NEED TO CHECK IF SIWTCH IS ON 
-    if ( current_voltage < min_voltage ) { 
-        struct __attribute__((__packed__)) {
-            char let[7]; 
-            float volt;} msg =  { 
-                .let = {'B','A','T',' ','L','O','W'}, 
-                .volt = bat_volt }; 
+    // // check if voltage is too low 
+    // float min_voltage = 4.2; // equating to 1.05 V per cell nominal 1.2 V
+    // // ALSO NEED TO CHECK IF SIWTCH IS ON 
+    // if ( current_voltage < min_voltage ) { 
+    //     struct __attribute__((__packed__)) {
+    //         char let[7]; 
+    //         float volt;} msg =  { 
+    //             .let = {'B','A','T',' ','L','O','W'}, 
+    //             .volt = Battery_Recent() }; 
 
-        // Send Warning to Serial that batteries need to be charged 
-        usb_send_msg("c7sf",'!', &msg, sizeof(msg));  
-    }
+    //     // Send Warning to Serial that batteries need to be charged 
+    //     USB_Send_Msg("c7sf",'!', &msg, sizeof(msg));  
+    // }
 }
