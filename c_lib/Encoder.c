@@ -1,6 +1,10 @@
 #include "Encoder.h"
 #include "../c_lib/SerialIO.h"
 
+
+// define counts per rad from 75.81 × 12 ≈ 909.7 CPR
+#define _count_per_rad 75.81 * 12 * 0.5 / 3.14159
+
 /**
  * Internal counters for the Interrupts to increment or decrement as necessary.
  */
@@ -69,36 +73,44 @@ void Initialize_Encoders()
     // global interupt enable, MIHGT ALREADY BE  
     SREG |= ( 1 << 7 );
 
-    // // set left B channel, Port E 2 as output 
-    // DDRE |= ( 1 << DDE2 );
-    // // set left XOR channel, Port B 4 as output 
-    // DDRB |= ( 1 << DDB6 );
-    // // set left PCIE interupt enabled
-    // PCICR |= ( 1 << PCIE0 );
-    // // set left interupt, Port B 4 
-    // PCMSK0 |= ( 1 << PCINT4 ); 
+    // interupt control, trigger on falling and rising
+    EICRB |= ( ( 0 << ISC61 ) | ( 1 << ISC60 ) );
+
+    // set left B channel, Port E 2 as input 
+    DDRE |= ( 0 << DDE2 );
+    // set left XOR channel, Port B 4 as input 
+    DDRB |= ( 0 << DDB4 );
+    // set left PCIE interupt control enabled
+    PCICR |= ( 1 << PCIE0 );
+    // set left PCIF interupt flag enabled
+    PCIFR |= ( 1 << PCIF0 ); 
+    // set left interupt, Port B 4  
+    PCMSK0 |= ( 1 << PCINT4 ); 
 
     
     // check on if the rising or falling ege should generate interupt ? what should it be  
 
-    // set right B channel, Port F 0 as output 
-    PORTF |= ( 1 << PORTF0 ); 
-    // set right XOR channel, Port E 6 as output 
-    PORTE |= ( 1 << PORTE6 ); 
+    // // working 
+    // // set right B channel, Port F 0 as output 
+    // PORTF |= ( 1 << PORTF0 ); 
+    // // set right XOR channel, Port E 6 as output 
+    // PORTE |= ( 1 << PORTE6 ); 
+    // // set right interupt, Port E 6 
+    // EIMSK |= ( 1 << INT6 ); 
+
+    // messed this up WORKING
+    // set right B channel, Port F 0 as input 
+    DDRF |= ( 0 << DDF0 ); 
+    // set right XOR channel, Port E 6 as input 
+    DDRE |= ( 0 << PORTE6 ); 
     // set right interupt, Port E 6 
     EIMSK |= ( 1 << INT6 ); 
-    // interupt control, trigger on falling and rising
-    EICRB |= ( ( 0 << ISC61 ) | ( 1 << ISC60 ) );
+
     // // interupt control, trigger on falling and rising
     // EICRB |= ( ( 1 << ISC61 ) | ( 1 << ISC60 ) );
 
     // CHECK IS IT NORMAL FOR USB TO DISCOONECT IF INTERUPT IS ENABLED ?? 
     // CAN REINITALIZE IT AT AN INTERVAL 
-
-    // can check PCIFR, PCIF0 if 1 is set 
-
-    // enable interupts 
-    // sei(); 
 
     // Initialize static file variables. These probably need to be updated.
     _last_right_A = 0;  // MEGN540 Lab 3 TODO
@@ -193,9 +205,13 @@ float Encoder_Rad_Right()
  */
 ISR( PCINT0_vect )
 {
+    // disable interups
+    cli(); 
+
     // // general vector for all PCINT
     // // PCINT4 is on PB4 
 
+    // can check PCIFR, PCIF0 if 1 is set 
 
     // // check if 
     // if ( Left_XOR() ) {
@@ -239,14 +255,47 @@ ISR( PCINT0_vect )
     // _last_left_XOR = Left_XOR();
     // _last_left_A = _current_left_A;
 
-    char a = 'L';
-    USB_Send_Msg( "cc",'t', &a, sizeof( a ) );
-   
-   
-    // update last 
-    _last_left_A = Left_A();
-    _last_left_B = Left_B();
-    _last_left_XOR = Left_XOR();
+    // check Port B 4 to see if the interupt is from this input 
+
+    // use lat_left_XOR in comparison with current_left_xor 
+
+    bool _current_left_XOR = Left_XOR();
+
+    // compare current with last if changed than execute 
+    // this determines if interupt was PCINT4
+    if ( _current_left_XOR != _last_left_XOR ) {
+        // check direction
+        uint8_t dir_fun = Motor_Direction( _last_left_A, _last_left_B, Left_A, Left_B );
+        if ( dir_fun == 0 ) {
+            // increment left_counts 
+            _left_counts++;
+        } else if ( dir_fun == 1 ) {
+            // decrement left_counts 
+            _left_counts--;
+        } 
+
+
+        // // printing for error checking  
+        // struct __attribute__( ( __packed__ ) ) {
+        //     bool t1;
+        //     bool t2;
+        //     bool t3;
+        //     bool t4;
+        //     bool t5;
+        // } data;
+        // data.t1 = _last_left_A;
+        // data.t2 = _last_left_B;
+        // data.t3 = Left_A();
+        // data.t4 = Left_B();
+        // data.t5 = Left_XOR();
+        // USB_Send_Msg( "cBBBBB",'1', &data, sizeof( data ) );
+        
+    
+        // update last 
+        _last_left_A = Left_A();
+        _last_left_B = Left_B();
+        _last_left_XOR = Left_XOR();
+    } 
 
     // enable interupts 
     sei();
@@ -258,6 +307,7 @@ ISR( PCINT0_vect )
  */
 ISR( INT6_vect )
 {
+    // disable interups
     cli(); 
 
     // char b = 'R';
@@ -274,38 +324,31 @@ ISR( INT6_vect )
         _right_counts--;
     } 
 
-
     // sending 
     // // float 
     // uint32_t temp = _right_counts;
     // // send USB message for testing 
 
+    // printing for error checking 
+    /* 
     struct __attribute__( ( __packed__ ) ) {
         bool t1;
         bool t2;
         bool t3;
         bool t4;
         bool t5;
-        // uint8_t t6;
     } data;
-    
     data.t1 = _last_right_A;
     data.t2 = _last_right_B;
     data.t3 = Right_A();
     data.t4 = Right_B();
     data.t5 = Right_XOR();
-    // data.t6 = dir_fun;
-    // float dir_fun_2 = (float)dir_fun;
     USB_Send_Msg( "cBBBBB",'1', &data, sizeof( data ) );
-    // USB_Send_Msg( "cf", '2',&dir_fun_2, sizeof( dir_fun_2 ) );
-    // USB_Send_Msg( "cB",'2', &temp2, sizeof( temp2 ) );
-    // USB_Send_Msg( "cB",'3', &temp3, sizeof( temp3 ) );
-    // USB_Send_Msg( "cB",'4', &temp4, sizeof( temp4 ) );
+    */
 
     // update last 
     _last_right_A = Right_A();
     _last_right_B = Right_B();
-
 
     // enable interupts 
     sei();

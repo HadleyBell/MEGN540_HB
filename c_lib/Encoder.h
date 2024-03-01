@@ -42,9 +42,6 @@
 #ifndef _LAB3_ENCODER_H
 #define _LAB3_ENCODER_H
 
-// define counts per rad from 75.81 × 12 ≈ 909.7 CPR
-#define _count_per_rad 75.81 * 12 * 0.5 / 3.14159
-
 #include <avr/interrupt.h> // For Interrupts
 #include <avr/io.h>        // For pin input/output access
 #include <ctype.h>         // For int32_t type

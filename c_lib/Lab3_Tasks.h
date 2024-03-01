@@ -36,15 +36,24 @@
 #define LAB3_TASKS_H
 
 #include "Task_Management.h"
+#include "Encoder.h"
+#include "SerialIO.h"
+#include "Battery_Monitor.h"
 
 // Include your lab-specific headers here
 // e.g. #include "SerialIO.h"  // necessary for sending arithmatic results back to user
 
 // Put your lab-specific tasks here
 // e.g. Task_t task_restart;  ///<-- Lab 1: This flag indicates that the device received a restart command from the hoast. Default inactive.
+Task_t task_send_encoder_count;
+Task_t task_send_battery_voltage;
+Task_t task_update_battery_voltage; 
 
 // Put your lab-specific task functionality and data_structures (if necessary) here so it is accessable to both
 // message handeling and the Lab main loops.
 // e.g. void Send_Time_Now( float _time_since_last );
+void Send_Encoder_Count( float _time_since_last );
+void Send_Battery_Voltage( float _time_since_last );
+void Update_Battery_Voltage( float _time_since_last );
 
 #endif  // ifndef LAB3_TASKS_H

@@ -44,10 +44,12 @@
 #include "Task_Management.h"   // for clean task management with functors
 #include "Timing.h"            // for Time understanding
 #include "Encoder.h"           // for motor rotational counting
+#include "Battery_Monitor.h"   // for battery monitor 
 
 // Include Lab Sepcific Functionality
 #include "Lab1_Tasks.h"
 #include "Lab2_Tasks.h"
+#include "Lab3_Tasks.h"
 
 // put your global variables (only if absolutely required) here.task_send_time
 // Best to identify them as "static" to make them indentified as internal and start with a "_" to identify as internal.
@@ -75,6 +77,9 @@ void Initialize_Modules( float _time_not_used_ )
     // Initialize encoders 
     Initialize_Encoders(); 
 
+    // Initalize battery 
+    Initialize_Battery_Monitor(); 
+
     // Setup task handling
     Initialize_Task( &task_restart, Initialize_Modules /*function pointer to call*/ );
 
@@ -89,6 +94,15 @@ void Initialize_Modules( float _time_not_used_ )
     Initialize_Task( &task_time_loop, Send_Loop_Time );
     Initialize_Task( &task_send_time, Send_Time_Now );
 
+    // Encoder Tasks 
+    Initialize_Task( &task_send_encoder_count, Send_Encoder_Count );
+
+    // Battery Update
+    Initialize_Task( &task_update_battery_voltage, Update_Battery_Voltage ); 
+    Task_Activate( &task_update_battery_voltage, 0.002 ); // Activate to update every 2 ms
+    // Battery Send 
+    Initialize_Task( &task_send_battery_voltage, Send_Battery_Voltage );
+
 }
 
 /** Main program entry point. This routine configures the hardware required by the application, then
@@ -102,6 +116,10 @@ int main( void )
     for( ;; ) {  // yet another way to do while (true)
         Time_t loop_start_time = Timing_Get_Time(); 
 
+
+        // update battery every 2 ms but only return resut if error low bat 
+
+
         Task_USB_Upkeep();
 
         Task_Run_If_Ready( &task_message_handling );
@@ -111,11 +129,14 @@ int main( void )
         Task_Run_If_Ready( &task_send_time );
         Task_Run_If_Ready( &task_time_loop );
 
+        // encoder 
+        Task_Run_If_Ready( &task_send_encoder_count );
+        // battery 
+        Task_Run_If_Ready( &task_send_battery_voltage );
+        Task_Run_If_Ready( &task_update_battery_voltage ); 
 
         Task_Run_If_Ready( &task_message_handling_watchdog );
-
-
-        Timing_Set_Loop_Time( loop_start_time ); 
+        Timing_Set_Loop_Time( loop_start_time );
     }
 }
 

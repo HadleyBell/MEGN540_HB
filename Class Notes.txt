@@ -85,3 +85,48 @@ Interupts
 
 
     #define TIMER0_OVF_vect     _VECTOR(23)  /* Timer/Counter0 Overflow */
+
+
+2/29/2023
+State 
+    Things we care abbout and what the universe cares about 
+
+    [theta';w'] = [0,1;0,(-c/J+ktkv/JR)][theta;w] + [0;kt/R]v 
+    TF = C(sI - A)^-1 B + D 
+    y = cx + Dv =[1,0]x + 0v  
+    y = theta, in rad 
+
+    TF = Gss / () ()  
+        / characterisic equation telling you about poles, eigenvales of A
+
+    only care about net effect 
+    TF = Gss / ((s+0)(s+6)) = Gss/ (s(s+6))
+
+
+theta(s)/V(s) 
+
+w/v = s*g/(s+0)(s+b) = G / s+b
+
+lim s-> 0 => G/b, actual steady state velocity relationshp 
+
+G/b (1-e^-b(t-t0))v 
+
+take differential with last 
+
+b = 1/(t2-t1) loge(wss-w(te) / (wss-w(t) ) )
+
+
+Frequency Repsone G / s(s+b) 
+    |G/w(jjb-w)| = G/w(w+b) <=> 
+
+if you put ini a frequency you get out the frequency at a differnt magnitude 
+sin wave 10 rad/s amp 1, get out sin wave 10 rad/s with amplituede G/(10(10+b))
+
+check + and - voltages to check forward and backward 
+also what happens when spinning left and right 
+
+1 motor model and two motors, could combineto one net test 
+
+
+Battery filter 
+// get a and b from matlab 

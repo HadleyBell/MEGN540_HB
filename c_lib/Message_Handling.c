@@ -30,6 +30,8 @@
 
 #include "Message_Handling.h"
 #include "Encoder.h"
+#include "Lab3_Tasks.h"
+
 
 /**
  * Function _Message_Length returns the number of bytes associated with a command string per the
@@ -277,32 +279,54 @@ void Task_Message_Handling( float _time_since_last )
             if( USB_Msg_Length() >= _Message_Length( 'e' ) ) {
                 // remove first character the 'e' 
                 USB_Msg_Get();
-
-                struct __attribute__( ( __packed__ ) ) {
-                    float left;
-                    float right;
-                } data;
-
-                data.left = ( float ) Encoder_Counts_Left();
-                data.right = ( float ) Encoder_Counts_Right();
-
-                // return encoder coutns left and right 
-                // int32_t left_count = Encoder_Counts_Right;  
-                // int32_t right_count = _right_counts; 
-                USB_Send_Msg( "cff",'e', &data, sizeof( data ) );
-                // USB_Send_Msg( "cff",'e', &data.right, sizeof( data.right ) );
-
+                // activate to run once 
+                Task_Activate( &task_send_encoder_count, -1 );
             }
             break;
         case 'E':
-            // 
+            // return the encoder counts for the left and right at given time interval 
+            if( USB_Msg_Length() >= _Message_Length( 'E' ) ) {
+                // remove first character the 'e' 
+                USB_Msg_Get();
+                // pop off float time interval
+                float time_interval;
+                USB_Msg_Read_Into( &time_interval, sizeof( time_interval ) ); 
 
+                // check if task should cancel 
+                if ( time_interval <= 0 ) {
+                    Task_Cancel( &task_send_encoder_count ); 
+                } else {
+                    // activate to run at interval 
+                    Task_Activate( &task_send_encoder_count, time_interval );
+                }
+            }
             break;
         case 'b':
-
+            // return the battery voltage level
+            if( USB_Msg_Length() >= _Message_Length( 'b' ) ) {
+                // remove first character the 'b' 
+                USB_Msg_Get();
+                // activate to run once 
+                Task_Activate( &task_send_battery_voltage, -1 );
+            }
             break;  
         case 'B':
+            // return the battery voltage level at given interval 
+            if( USB_Msg_Length() >= _Message_Length( 'B' ) ) {
+                // remove first character the 'B' 
+                USB_Msg_Get();
+                // pop off float time interval
+                float time_interval;
+                USB_Msg_Read_Into( &time_interval, sizeof( time_interval ) ); 
 
+                // check if task should cancel 
+                if ( time_interval <= 0 ) {
+                    Task_Cancel( &task_send_battery_voltage ); 
+                } else {
+                    // activate to run at interval
+                    Task_Activate( &task_send_battery_voltage, time_interval );
+                }
+            }
             break;  
 
         default:

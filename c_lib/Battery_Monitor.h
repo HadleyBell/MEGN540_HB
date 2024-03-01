@@ -36,11 +36,17 @@
  * The battery voltage is divided by 2 before being connected to ADC6 (PF6).
  *
  */
+
+#include "Filter.h"
+
 #ifndef _LAB3_BATTERY_MONITOR_H
 #define _LAB3_BATTERY_MONITOR_H
 
 #include <avr/io.h>        // For pin input/output access
 #include <ctype.h>         // For int32_t type
+
+// describe voltage filter type 
+Filter_Data_t Voltage_Filter; 
 
 /**
  * Function Initialize_Battery_Monitor initializes the Battery Monitor to record the current battery voltages.
@@ -51,6 +57,12 @@ void Initialize_Battery_Monitor();
  * Function Battery_Voltage initiates the A/D measurement and returns the result for the battery voltage.
  */
 float Battery_Voltage();
+
+
+/**
+ * Function Battery_Recent returns most recent voltage post filter 
+ */
+float Battery_Recent();
 
 
 
