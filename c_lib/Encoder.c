@@ -2,8 +2,10 @@
 #include "../c_lib/SerialIO.h"
 
 
-// define counts per rad from 75.81 × 12 ≈ 909.7 CPR
-#define _count_per_rad 75.81 * 12 * 0.5 / 3.14159
+// define counts per rad from 75.81 × 12 ≈ 909.7 CPrev
+// counts per rad = ( 75.81 * 12 ) / 2*pi = 144.59
+// inverse to get rad per count
+#define _RAD_PER_COUNT ( 2 * 3.14159 ) / ( 75.81 * 12 )
 
 /**
  * Internal counters for the Interrupts to increment or decrement as necessary.
@@ -112,7 +114,7 @@ void Initialize_Encoders()
     // CHECK IS IT NORMAL FOR USB TO DISCOONECT IF INTERUPT IS ENABLED ?? 
     // CAN REINITALIZE IT AT AN INTERVAL 
 
-    // Initialize static file variables. These probably need to be updated.
+    // Initialize static file variables
     _last_right_A = 0;  // MEGN540 Lab 3 TODO
     _last_right_B = 0;  // MEGN540 Lab 3 TODO
 
@@ -183,7 +185,8 @@ float Encoder_Rad_Left()
 {
     // *** MEGN540 Lab3 ***
     // YOUR CODE HERE.  How many counts per rotation???
-    return 0;
+
+    return _left_counts * _RAD_PER_COUNT;
 }
 
 /**
@@ -195,7 +198,7 @@ float Encoder_Rad_Right()
     // *** MEGN540 Lab3 ***
     // YOUR CODE HERE.  How many counts per rotation???
 
-    return _right_counts / _count_per_rad;
+    return _right_counts * _RAD_PER_COUNT;
 }
 
 /**
@@ -273,7 +276,6 @@ ISR( PCINT0_vect )
             // decrement left_counts 
             _left_counts--;
         } 
-
 
         // // printing for error checking  
         // struct __attribute__( ( __packed__ ) ) {

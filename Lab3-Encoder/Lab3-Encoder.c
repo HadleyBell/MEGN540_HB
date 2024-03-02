@@ -100,7 +100,10 @@ void Initialize_Modules( float _time_not_used_ )
     // Battery Update
     Initialize_Task( &task_update_battery_voltage, Update_Battery_Voltage ); 
     Task_Activate( &task_update_battery_voltage, 0.002 ); // Activate to update every 2 ms
-    // Battery Send 
+    // Battery Low 
+    Initialize_Task( &task_low_battery_voltage, Low_Battery_Voltage );
+    Task_Activate( &task_low_battery_voltage, 1000.0 ); // Activate to run every 1 sec
+        // Battery Send 
     Initialize_Task( &task_send_battery_voltage, Send_Battery_Voltage );
 
 }
@@ -122,8 +125,8 @@ int main( void )
 
         Task_USB_Upkeep();
 
+        // usb message inputs 
         Task_Run_If_Ready( &task_message_handling );
-        Task_Run_If_Ready( &task_restart );
 
         // timing 
         Task_Run_If_Ready( &task_send_time );
@@ -134,9 +137,14 @@ int main( void )
         // battery 
         Task_Run_If_Ready( &task_send_battery_voltage );
         Task_Run_If_Ready( &task_update_battery_voltage ); 
+        Task_Run_If_Ready( &task_low_battery_voltage ); 
 
+        // usb watchdog 
         Task_Run_If_Ready( &task_message_handling_watchdog );
         Timing_Set_Loop_Time( loop_start_time );
+
+        // re initalize
+        Task_Run_If_Ready( &task_restart );
     }
 }
 

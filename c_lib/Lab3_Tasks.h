@@ -48,6 +48,7 @@
 Task_t task_send_encoder_count;
 Task_t task_send_battery_voltage;
 Task_t task_update_battery_voltage; 
+Task_t task_low_battery_voltage; 
 
 // Put your lab-specific task functionality and data_structures (if necessary) here so it is accessable to both
 // message handeling and the Lab main loops.
@@ -55,5 +56,6 @@ Task_t task_update_battery_voltage;
 void Send_Encoder_Count( float _time_since_last );
 void Send_Battery_Voltage( float _time_since_last );
 void Update_Battery_Voltage( float _time_since_last );
+void Low_Battery_Voltage( float _time_since_last );
 
 #endif  // ifndef LAB3_TASKS_H

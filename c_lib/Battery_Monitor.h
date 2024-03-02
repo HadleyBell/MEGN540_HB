@@ -58,14 +58,9 @@ void Initialize_Battery_Monitor();
  */
 float Battery_Voltage();
 
-
 /**
  * Function Battery_Recent returns most recent voltage post filter 
  */
 float Battery_Recent();
-
-
-
-
 
 #endif

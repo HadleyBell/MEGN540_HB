@@ -1,5 +1,11 @@
 #include "Lab3_Tasks.h"
 
+
+// equating to 1.1 V per cell nominal 1.2 V
+#define BATTERY_MIN_VOLTAGE 4.4
+// lowest voltage qick dropoff after switch turned off
+#define BATTERY_CONNECTED_VOLTAGE 2.5
+
 void Send_Encoder_Count( float _time_since_last ) {
 
     struct __attribute__( ( __packed__ ) ) {
@@ -7,12 +13,12 @@ void Send_Encoder_Count( float _time_since_last ) {
         float right;
     } data;
 
+    // sending counts
     data.left = ( float ) Encoder_Counts_Left();
     data.right = ( float ) Encoder_Counts_Right();
-
-    // return encoder coutns left and right 
-    // int32_t left_count = Encoder_Counts_Right;  
-    // int32_t right_count = _right_counts; 
+    // // sending rads 
+    // data.left = ( float ) Encoder_Rad_Left();
+    // data.right = ( float ) Encoder_Rad_Right();
 
     // determine if command was 'e' or 'E' 
     char t_type; 
@@ -44,21 +50,21 @@ void Send_Battery_Voltage( float _time_since_last ) {
 
 
 void Update_Battery_Voltage( float _time_since_last ) {
-    // // get battery voltage update with filter
+    // get battery voltage update with filter
     Battery_Voltage();
-    // float current_voltage = Battery_Voltage();
+}
 
-    // // check if voltage is too low 
-    // float min_voltage = 4.2; // equating to 1.05 V per cell nominal 1.2 V
-    // // ALSO NEED TO CHECK IF SIWTCH IS ON 
-    // if ( current_voltage < min_voltage ) { 
-    //     struct __attribute__((__packed__)) {
-    //         char let[7]; 
-    //         float volt;} msg =  { 
-    //             .let = {'B','A','T',' ','L','O','W'}, 
-    //             .volt = Battery_Recent() }; 
+void Low_Battery_Voltage( float _time_since_last ) {
+    // low battery structure 
+    struct __attribute__((__packed__)) {
+        char let[7]; 
+        float volt;} msg =  { 
+            .let = {'B','A','T',' ','L','O','W'}, 
+            .volt = Battery_Recent() }; 
 
-    //     // Send Warning to Serial that batteries need to be charged 
-    //     USB_Send_Msg("c7sf",'!', &msg, sizeof(msg));  
-    // }
+    // check if voltage is too low but battery is plugged in
+    if ( ( msg.volt < BATTERY_MIN_VOLTAGE ) && ( msg.volt > BATTERY_CONNECTED_VOLTAGE ) ) { 
+        // send low battery message 
+        USB_Send_Msg("c7sf",'!', &msg, sizeof( msg )); 
+    } 
 }

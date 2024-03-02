@@ -29,6 +29,7 @@ void Initialize_Battery_Monitor()
     // // Reference selection Interal 2.56V as voltage divided / 2 with cap AREF AREF 
     // ADMUX |= ( ( 0 << REFS1 ) | ( 0 << REFS0 ) );
     ADMUX |= ( ( 1 << REFS1 ) | ( 1 << REFS0 ) );
+    // ADMUX |= ( ( 0 << REFS1 ) | ( 1 << REFS0 ) );
 
     // Setup ADC right adjusted, clear to 0 
     ADMUX &= ~( 1 << ADLAR );
@@ -49,8 +50,23 @@ void Initialize_Battery_Monitor()
     // LEFT vs. Right adjusted 
 
     // initalize filter 
-    float a_coeff[] = { 1, 0, 0, 0, 0 };
-    float b_coeff[] = { 0.0354, 0.2409, 0.4473, 0.2409, 0.0354 };
+    // float a_coeff[] = { 1, 0, 0, 0, 0 };
+    // float b_coeff[] = { 0.0354, 0.2409, 0.4473, 0.2409, 0.0354 };
+    // 10 Hz butterworth
+    // float a_coeff[] = { 1, -3.3717, 5.0679, -3.1159, 0.7199 };
+    // float b_coeff[] = { 0.00001329, 0.00005317, 0.00007976, 0.00005317, 0.00001329 };
+    // float a_coeff[] = { 1 };
+    // float b_coeff[] = { 1 };
+    // float a_coeff[] = { 1.0, -3.344068, 4.238864, -2.409343, 0.517478 };
+    // float b_coeff[] = { 0.000183216, 0.000732864, 0.00109930, 0.000732864, 0.000183216 };
+    // float a_coeff[] = { 1.0, -2.7488358, 2.52523122, -0.77763856 };
+    // float b_coeff[] = { 0.0002196062, 0.00065881863, 0.00065881863, 0.000219606 };
+
+    float a_coeff[] = { 1.0, -1.822694925, 0.8371816512 };
+    float b_coeff[] = { 0.003621681514, 0.0072433630298, 0.00362168151 };
+
+
+
     Filter_Init( &Voltage_Filter, b_coeff, a_coeff, sizeof( a_coeff ) / sizeof( float ) - 1 );
 
 }
@@ -95,11 +111,8 @@ float Battery_Voltage()
     // set conversion to finished clear interupt, not sure if needed as interupts not used 
     ADCSRA |= ( 1 << ADIF ); // pretty sure it should be this bit 6 not 1 
 
-
-    // think something is slightly wrong here but need to see 
-
-
-    return data.value * BITS_TO_BATTERY_VOLTS;
+    // conversion is done above 
+    return ( newest_in_val * BITS_TO_BATTERY_VOLTS );
 }
 
 /**
