@@ -2,7 +2,8 @@
 #include "Filter.h"
 
 
-static const float BITS_TO_BATTERY_VOLTS = 0.00488758553275;
+// static const float BITS_TO_BATTERY_VOLTS = 0.00488758553275;
+static const float BITS_TO_BATTERY_VOLTS = 0.0050048875;
 
 /**
  * Function Initialize_Battery_Monitor initializes the Battery Monitor to record the current battery voltages.
@@ -32,10 +33,13 @@ void Initialize_Battery_Monitor()
     // ADMUX |= ( ( 0 << REFS1 ) | ( 1 << REFS0 ) );
 
     // Setup ADC right adjusted, clear to 0 
-    ADMUX &= ~( 1 << ADLAR );
+    // ADMUX &= ~( 1 << ADLAR );
+    ADMUX |= ( 0 << ADLAR );
+
 
     // Disable auto trigger 
-    ADCSRA &= ~(1 << ADATE);
+    // ADCSRA &= ~(1 << ADATE);
+    ADCSRA |= ( 0 << ADATE );
 
     // Specify ADC6
     ADMUX |= ( ( 0 << MUX4 ) | ( 0 << MUX3 ) | ( 1 << MUX2 ) | ( 1 << MUX1 ) | ( 0 << MUX0 ) ); 
