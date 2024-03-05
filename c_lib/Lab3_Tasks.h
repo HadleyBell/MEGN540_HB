@@ -38,13 +38,34 @@
 #include "Task_Management.h"
 
 // Include your lab-specific headers here
-// e.g. #include "SerialIO.h"  // necessary for sending arithmatic results back to user
+#include "Battery_Monitor.h"
+#include "Encoder.h"
+#include "Filter.h"
+#include "SerialIO.h"
+#include "Timing.h"
 
 // Put your lab-specific tasks here
-// e.g. Task_t task_restart;  ///<-- Lab 1: This flag indicates that the device received a restart command from the hoast. Default inactive.
+// Task_t task_restart;  ///<-- Lab 1: This flag indicates that the device received a restart command from the hoast. Default inactive.
+
+Task_t task_send_encoders;
+Task_t task_send_battery;
+// Task_t task_battery_monitor;
+Task_t task_battery_upkeep;
+
+Filter_Data_t battery_lowpass;
 
 // Put your lab-specific task functionality and data_structures (if necessary) here so it is accessable to both
 // message handeling and the Lab main loops.
-// e.g. void Send_Time_Now( float _time_since_last );
+// void Send_Encoder( float _time_since_last );
+// void Send_Battery( float _time_since_last );
+// void Battery_Low( float voltage );
+// void Battery_Upkeep( float _time_since_last );
+// void Initialize_Battery_Filter();
+
+void Send_Encoders( float _time_since_last );  // sends values in left and right encoders over serial
+void Send_Battery( float _time_since_last );
+void Battery_Upkeep( float _time_since_last );
+void Initialize_Battery_Filter();
+void Battery_Low( float bat_volt );
 
 #endif  // ifndef LAB3_TASKS_H

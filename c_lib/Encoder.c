@@ -1,4 +1,5 @@
 #include "Encoder.h"
+// #include Timing.c
 
 /**
  * Internal counters for the Interrupts to increment or decrement as necessary.
@@ -18,28 +19,28 @@ static volatile int32_t _right_counts = 0;  // Static limits it's use to this fi
 // Hint, use avr's bit_is_set function to help
 static inline bool Right_XOR()
 {
-    return 0;
+    return bit_is_set( PINE, 6 );
 }  // MEGN540 Lab 3 TODO
 static inline bool Right_B()
 {
-    return 0;
+    return bit_is_set( PINF, 0 );
 }  // MEGN540 Lab 3 TODO
 static inline bool Right_A()
 {
-    return 0;
+    return Right_B() != Right_XOR();  // from slide
 }  // MEGN540 Lab 3 TODO
 
 static inline bool Left_XOR()
 {
-    return 0;
+    return bit_is_set( PINB, 4 );
 }  // MEGN540 Lab 3 TODO
 static inline bool Left_B()
 {
-    return 0;
+    return bit_is_set( PINE, 2 );
 }  // MEGN540 Lab 3 TODO
 static inline bool Left_A()
 {
-    return 0;
+    return Left_B() != Left_XOR();  // from slide
 }  // MEGN540 Lab 3 TODO
 
 /**
@@ -60,44 +61,100 @@ void Initialize_Encoders()
     // the changes in XOR flag. You'll need to see Sections 11.1.2-11.1.4 for setup and use.
     // You'll use the INT6_vect ISR flag.
 
+    SREG |= ( 1 << SREG_I );  // 1
+    // SREG |= ( 1 << 7 );
+
+    PCIFR |= ( 1 << PCIF0 );
+
+    EIMSK |= ( 1 << INT6 );  // 2
+    DDRE &= ( 0 << PINE6 );
+    PORTE &= ( 0 << PINE6 );
+    EICRB &= ( 0 << ISC61 );
+    EICRB |= ( 0 << ISC60 );  // 3
+
+    DDRF &= ( 0 << PIN0 );
+    PORTF &= ( 0 << PINF0 );
+
+    PCMSK0 |= ( 1 << PCINT4 );  // 4
+    DDRB &= ( 0 << PIN4 );
+    PORTB &= ( 0 << PINB4 );
+    PCICR |= ( 1 << PCIE0 );  // 5
+
+    PORTE &= ( 0 << PINE2 );
+    DDRE &= ( 0 << PIN2 );
+
+    // right encoder setup
+    // SET_BIT( EICRB, ISC60 );  // any logical change on INT6 generates an interrupt request (ISC60 = 1, ISC61 = 0)
+    // SET_BIT( EIMSK, INT6 );   // actually turn on INT6 interrupts, idiot
+
+    // // left encoder setup
+    // SET_BIT( PCICR, PCIE0 );    // When the PCIE0 bit=1 and the I-bit in the Status Register (SREG)=1, pin change interrupt 0 is enabled.
+    // SET_BIT( PCMSK0, PCINT4 );  // enable PCINT4
+
+    // SET_BIT( SREG, 7 );  // enable global interrupts //previously I but errors
+    sei();
+
     // Initialize static file variables. These probably need to be updated.
-    _last_right_A = 0;  // MEGN540 Lab 3 TODO
-    _last_right_B = 0;  // MEGN540 Lab 3 TODO
+    // set to currents
+    _last_right_A = Right_A();  // maybe leave as zero
+    _last_right_B = Right_B();
 
-    _last_left_A   = 0;  // MEGN540 Lab 3 TODO
-    _last_left_B   = 0;  // MEGN540 Lab 3 TODO
-    _last_left_XOR = 0;  // MEGN540 Lab 3 TODO
+    _last_left_A   = Left_A();
+    _last_left_B   = Left_B();
+    _last_left_XOR = Left_XOR();
 
-    _left_counts  = 0;  // MEGN540 Lab 3 TODO
-    _right_counts = 0;  // MEGN540 Lab 3 TODO
+    _left_counts  = 0;
+    _right_counts = 0;
 }
 
 /**
  * Function Encoder_Counts_Left returns the number of counts from the left encoder.
  * @return [int32_t] The count number.
  */
-int32_t Encoder_Counts_Left()
+int32_t Encoder_Counts_Left()  // from 14.1
 {
     // *** MEGN540 Lab3 ***
     // YOUR CODE HERE
     // Note: Interrupts can trigger during a function call and an int32 requires
     // multiple clock cycles to read/save. You may want to stop interrupts, copy the value,
     // and re-enable interrupts to prevent this from corrupting your read/write.
-    return 0;
+    unsigned char sreg;
+    uint32_t temp;
+
+    sreg = SREG;  // save global interrupt flag
+    cli();        // disables interrupts
+
+    temp = _left_counts;
+
+    sei();        // restore interrupts
+    SREG = sreg;  // restore global interrupt flag
+
+    return temp;
 }
 
 /**
  * Function Encoder_Counts_Right returns the number of counts from the right encoder.
  * @return [int32_t] The count number.
  */
-int32_t Encoder_Counts_Right()
+int32_t Encoder_Counts_Right()  // counting everytime an interrupt is triggered
 {
     // *** MEGN540 Lab3 ***
     // YOUR CODE HERE
     // Note: Interrupts can trigger during a function call and an int32 requires
     // multiple clock cycles to read/save. You may want to stop interrupts, copy the value,
     // and re-enable interrupts to prevent this from corrupting your read/write.
-    return 0;
+    unsigned char sreg;
+    uint32_t temp;
+
+    sreg = SREG;  // save global interrupt flag
+    cli();        // disables interrupts
+
+    temp = _right_counts;
+
+    sei();        // restore interrupts
+    SREG = sreg;  // restore global interrupt flag
+
+    return temp;
 }
 
 /**
@@ -108,7 +165,7 @@ float Encoder_Rad_Left()
 {
     // *** MEGN540 Lab3 ***
     // YOUR CODE HERE.  How many counts per rotation???
-    return 0;
+    return Encoder_Counts_Left() * 0.00109926 * 2 * 3.141592 * 0.5;
 }
 
 /**
@@ -119,7 +176,12 @@ float Encoder_Rad_Right()
 {
     // *** MEGN540 Lab3 ***
     // YOUR CODE HERE.  How many counts per rotation???
-    return 0;
+    // 1:75 ratio
+    // encoder 12 counts
+    // 75.81x12 = 909.7 cpr
+    // 1/909.7 = 0.00109926;
+    // radians 2*pi
+    return Encoder_Counts_Right() * 0.00109926 * 2 * 3.141592 * 0.5;
 }
 
 /**
@@ -127,16 +189,32 @@ float Encoder_Rad_Right()
  * the Pin Change Interrupts can trigger for multiple pins.
  * @return
  */
-// ISR()
-//{
-//
-//}
+ISR( PCINT0_vect )
+{
+    bool cur_left_XOR = Left_XOR();
+    if( cur_left_XOR != _last_left_XOR ) {
+        bool cur_left_A = Left_A();
+        bool cur_left_B = Left_B();
+
+        _left_counts += ( cur_left_A ^ _last_left_B ) - ( cur_left_B ^ _last_left_A );
+
+        _last_left_A   = cur_left_A;
+        _last_left_B   = cur_left_B;
+        _last_left_XOR = cur_left_XOR;
+    }
+}
 
 /**
  * Interrupt Service Routine for the right Encoder.
  * @return
  */
-// ISR()
-//{
-//
-//}
+ISR( INT6_vect )  // INT6 is right
+{
+    bool cur_right_A = Right_A();
+    bool cur_right_B = Right_B();
+
+    _right_counts += ( cur_right_A ^ _last_right_B ) - ( cur_right_B ^ _last_right_A );
+
+    _last_right_A = cur_right_A;
+    _last_right_B = cur_right_B;
+}

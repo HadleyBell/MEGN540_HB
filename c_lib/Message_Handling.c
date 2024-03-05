@@ -237,12 +237,73 @@ void Task_Message_Handling( float _time_since_last )
 
                 command_processed = true;
             }
+        case 'e':  // return encoder counts for left and right motors
+            if( USB_Msg_Length() >= _Message_Length( 'e' ) ) {
+                USB_Msg_Get();
+
+                Task_Activate( &task_send_encoders, -1 );
+
+                //
+                command_processed = true;
+            }
+            break;  // need this??
+        case 'E':   // return encoder counts for left and right motors every X milliseconds
+            if( USB_Msg_Length() >= _Message_Length( 'E' ) ) {
+                USB_Msg_Get();
+
+                // data structure
+                struct __attribute__( ( __packed__ ) ) {
+                    float period;
+                } data;
+
+                // get data into structure
+                USB_Msg_Read_Into( &data, sizeof( data ) );
+
+                if( data.period > 0 ) {
+                    Task_Activate( &task_send_encoders, data.period * 1e-3 );
+                } else {
+                    Task_Cancel( &task_send_encoders );
+                };
+
+                //
+                command_processed = true;
+            }
+            break;
+        case 'b':
+            if( USB_Msg_Length() >= _Message_Length( 'b' ) ) {
+                // then process your reset by setting the task_restart flag defined in Lab1_Tasks.h
+                USB_Msg_Get();  // removes the first char of the ring buffer
+
+                Task_Activate( &task_send_battery, -1 );
+                command_processed = true;
+            }
+            break;
+        case 'B':  // return current battery voltage level every X milliseconds
+            if( USB_Msg_Length() >= _Message_Length( 'B' ) ) {
+                USB_Msg_Get();
+
+                // data structure
+                struct __attribute__( ( __packed__ ) ) {
+                    float period;
+                } data;
+
+                // get data into structure
+                USB_Msg_Read_Into( &data, sizeof( data ) );
+
+                if( data.period > 0 ) {
+                    Task_Activate( &task_send_battery, data.period * 1e-3 );
+                } else {
+                    Task_Cancel( &task_send_battery );
+                };
+                //
+                command_processed = true;
+            }
             break;
         default:
             // What to do if you dont recognize the command character
             USB_Send_Byte( '^' );
             // um comment this line if you want to stop the display of each command on top of one another.
-            // USB_Flush_Input_Buffer();
+            USB_Flush_Input_Buffer();
             break;
     }
 

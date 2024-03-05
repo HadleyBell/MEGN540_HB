@@ -42,16 +42,19 @@
 #ifndef _LAB3_ENCODER_H
 #define _LAB3_ENCODER_H
 
-#include <avr/interrupt.h> // For Interrupts
-#include <avr/io.h>        // For pin input/output access
-#include <ctype.h>         // For int32_t type
-#include <math.h>          // for M_PI
-#include <stdbool.h>       // for bool type
+#include <avr/interrupt.h>  // For Interrupts
+#include <avr/io.h>         // For pin input/output access
+
+#include <ctype.h>    // For int32_t type
+#include <math.h>     // for M_PI
+#include <stdbool.h>  // for bool type
 
 /**
  * Function Initialize_Encoders initializes the encoders, sets up the pin change interrupts, and zeros the initial encoder
  * counts.
  */
+// #define bit_is_set( sfr, bit ) ( _SFR_BYTE( sfr ) & _BV( bit ) )  // Hint, use avr's bit_is_set function to help
+
 void Initialize_Encoders();
 
 /**
@@ -77,6 +80,5 @@ float Encoder_Rad_Left();
  * @return
  */
 float Encoder_Rad_Right();
-
 
 #endif
