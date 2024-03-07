@@ -328,7 +328,51 @@ void Task_Message_Handling( float _time_since_last )
                 }
             }
             break;  
-
+        case 'p':
+            // sets pwm command for left and right, if power is acceptable range
+            // input chh
+            if( USB_Msg_Length() >= _Message_Length( 'p' ) ) {
+                // remove first character the 'p' 
+                USB_Msg_Get();
+            }
+            break;
+        case 'P':
+            // sets pwm command for left and right, if power is acceptable with sign direction
+            // input chhf
+            if( USB_Msg_Length() >= _Message_Length( 'P' ) ) {
+                // remove first character the 'p' 
+                USB_Msg_Get();
+            }
+            break;  
+        case 's':
+            // stops pwm and dissables motors
+            if( USB_Msg_Length() >= _Message_Length( 's' ) ) {
+                // remove first character the 's' 
+                USB_Msg_Get();
+            }
+            break;  
+        case 'S':
+            // stops pwm and dissables motors
+            if( USB_Msg_Length() >= _Message_Length( 'S' ) ) {
+                // remove first character the 'S' 
+                USB_Msg_Get();
+            }
+            break;  
+        case 'q':
+            // send system identifiaciton data back to host
+            // output time, pwm_l, pwm_r, encoderL, encoderR
+            if( USB_Msg_Length() >= _Message_Length( 'q' ) ) {
+                // remove first character the 'q' 
+                USB_Msg_Get();
+            }
+            break;  
+        case 'Q':
+            // send sys identifaction at a given interval 
+            if( USB_Msg_Length() >= _Message_Length( 'Q' ) ) {
+                // remove first character the 'Q' 
+                USB_Msg_Get();
+            }
+            break;  
         default:
             // What to do if you dont recognize the command character
           
