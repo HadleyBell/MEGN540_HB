@@ -142,4 +142,13 @@ For disabble enable, set pin output (enable) not output (dissable)
 
 Could also change count, not shure if needed thorugh 
 
-Want inverted OC1A (right) and OC1B (left)
+Want inverted OC1A (right) PB5 and OC1B (left) PB6`
+    Data Direction:    DDRB |= ( ( 1 << DDB5) & ( 1 << DDB6 ) ); 
+    DDR 1 (output) and 0 (input) 
+    Data Register:     PORTB |= ( ( 0 << PORTB5 ) & ( 0 << PORTB6 ) ); 
+    Think you would want to write 0 to the data register than set not non output 
+    Maybe you don't need to write it to zero as setting to input should negate any value that is there 
+        the past value will just remain untill it is enabled again 
+
+    For is_enable 
+        us is_bit_set( PORTB, PORTB5), etc. 
