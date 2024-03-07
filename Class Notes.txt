@@ -130,3 +130,11 @@ also what happens when spinning left and right
 
 Battery filter 
 // get a and b from matlab 
+
+
+3/7/2023
+For Top pick something that makes frequency ok, max is 250kHz hard to achive 
+Start with prescaller of say 1 and then top 1,000 would be 16kHz PWM then test from there 
+
+For disabble enable, set pin output (enable) not output (dissable) 
+Could also change count, not shure if needed thorugh 
