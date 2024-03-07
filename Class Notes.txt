@@ -135,6 +135,11 @@ Battery filter
 3/7/2023
 For Top pick something that makes frequency ok, max is 250kHz hard to achive 
 Start with prescaller of say 1 and then top 1,000 would be 16kHz PWM then test from there 
+    Human hearing range is 20kHz so might want to increase it to past that otherwise you would/could hear it 
+    maybe 500 to be 32kHz 
 
 For disabble enable, set pin output (enable) not output (dissable) 
+
 Could also change count, not shure if needed thorugh 
+
+Want inverted OC1A (right) and OC1B (left)
