@@ -30,7 +30,9 @@
 
 #include "Message_Handling.h"
 #include "Encoder.h"
+#include "MotorPWM.h"
 #include "Lab3_Tasks.h"
+#include "Lab4_Tasks.h"
 
 
 /**
@@ -47,24 +49,11 @@ static uint8_t _Message_Length( char cmd );
  */
 void Task_Message_Handling( float _time_since_last )
 {
-    // *** MEGN540  ***
-    // YOUR CODE HERE. I suggest you use your peak function and a switch interface
-    // Either do the simple stuff strait up, set flags to have it done later.
-    // If it just is a USB thing, do it here, if it requires other hardware, do it
-    // in the main and set a flag to have it done here.
-
-    // USB_Send_Byte( 2 );
-
-
-    // rb_push_back_B(&_usb_send_buffer, 1);
-
     // Check to see if their is data in waiting
     if( !USB_Msg_Length() )
         return;  // nothing to process...
 
-    // Get Your command designator without removal so if their are not enough
-    // bytes yet, the command persists
-
+    // Look at first message ininput USB 
     char command = USB_Msg_Peek();
 
     // /* MEGN540 -- LAB 2 */ 
@@ -334,6 +323,13 @@ void Task_Message_Handling( float _time_since_last )
             if( USB_Msg_Length() >= _Message_Length( 'p' ) ) {
                 // remove first character the 'p' 
                 USB_Msg_Get();
+                // struct for reading in values 
+                PWMdata data; 
+                // read into data struct
+                USB_Msg_Read_Into( &data, sizeof( data ) ); 
+
+                // set pwm 
+                Set_Left_Right_PWM( data );
             }
             break;
         case 'P':
@@ -342,6 +338,19 @@ void Task_Message_Handling( float _time_since_last )
             if( USB_Msg_Length() >= _Message_Length( 'P' ) ) {
                 // remove first character the 'p' 
                 USB_Msg_Get();
+                // struct for reading in values 
+                PWMdata_t data; 
+                // read into data struct
+                USB_Msg_Read_Into( &data, sizeof( data ) ); 
+
+                // try task_run with duation 
+                // Task_Run( &task_pwm_set, data.time );
+                // NO this is wrong maybe somethign with task_run( &task( time last ran ) )
+                // check time_last_ran and current time 
+                // maybe something with a task cancel motros then specify time interval, but this would always run will not just run once? 
+
+                // uint32_t current_milli = Timing_Get_Milli(); // current 
+                // data.time; // time for pwm to run for 
             }
             break;  
         case 's':
@@ -349,6 +358,12 @@ void Task_Message_Handling( float _time_since_last )
             if( USB_Msg_Length() >= _Message_Length( 's' ) ) {
                 // remove first character the 's' 
                 USB_Msg_Get();
+                // Run stop task once
+                Task_Activate( &task_pwm_stop, -1 ); 
+
+
+                // /* MEGN540 -- LAB 2 */ 
+                command_processed = true;
             }
             break;  
         case 'S':
@@ -356,6 +371,11 @@ void Task_Message_Handling( float _time_since_last )
             if( USB_Msg_Length() >= _Message_Length( 'S' ) ) {
                 // remove first character the 'S' 
                 USB_Msg_Get();
+                // Run stop task once
+                Task_Activate( &task_pwm_stop, -1 ); 
+                
+                // /* MEGN540 -- LAB 2 */ 
+                command_processed = true;
             }
             break;  
         case 'q':
@@ -364,6 +384,8 @@ void Task_Message_Handling( float _time_since_last )
             if( USB_Msg_Length() >= _Message_Length( 'q' ) ) {
                 // remove first character the 'q' 
                 USB_Msg_Get();
+                // Activate send system id task 
+                Task_Activate( &task_send_system_id, -1 ); 
             }
             break;  
         case 'Q':
@@ -371,28 +393,38 @@ void Task_Message_Handling( float _time_since_last )
             if( USB_Msg_Length() >= _Message_Length( 'Q' ) ) {
                 // remove first character the 'Q' 
                 USB_Msg_Get();
+                // Get time interval
+                float time_interval;
+                USB_Msg_Read_Into( &time_interval, sizeof( time_interval ) ); 
+                // Activate send system id task with interval 
+                Task_Activate( &task_send_system_id, time_interval ); 
             }
             break;  
         default:
             // What to do if you dont recognize the command character
           
-            USB_Send_Byte( 0x3 ); 
-            USB_Send_Byte( 0x63 ); 
-            USB_Send_Byte( 0x0 );  
-            USB_Send_Byte( 0x3f );
+            // USB_Send_Byte( 0x3 ); 
+            // USB_Send_Byte( 0x63 ); 
+            // USB_Send_Byte( 0x0 );  
+            // USB_Send_Byte( 0x3f );
 
-            USB_Flush_Input_Buffer(); 
-
-
+            // USB_Flush_Input_Buffer(); 
             // still have an issue with the buffer somehow 
 
             break;
     }
 
+    // function will run if there is data in input buffer 
+    // so command processed = false empty data so it should be activated 
+    // so I don't want to activate every loop as the timer will never be triggered 
+    // just activate if command processed, 
+    // could check if empty as well but it wouldn't hurt anyways 
+
     //********* MEGN540 -- LAB 2 ************//
+    // if( command_processed && ( USB_Msg_Length() == 0 ) ) {
     if( command_processed ) {
         // RESET the WATCHDOG TIMER
-        Task_Activate( &task_message_handling_watchdog, 0.0 );
+        Task_Activate( &task_message_handling_watchdog, 250 );
     }
 
 }
@@ -405,15 +437,46 @@ void Task_Message_Handling( float _time_since_last )
  */
 void Task_Message_Handling_Watchdog( float _unused_ )
 {
-    // if task was active for more than 
-    if( ( Timing_Get_Milli() - _unused_ ) >= 250 ) 
-    {
-        // send wathdog message and rest 
-        char command = '?';
-        USB_Send_Msg( "cc", 'W', &command, sizeof( command ) );
-        USB_Flush_Input_Buffer();
-        Task_Cancel( &task_message_handling_watchdog ); 
-    }
+    // uint16_t w = (uint16_t )_unused_; 
+
+    struct __attribute__( ( __packed__ ) ) {
+        float v1;
+        float v2;
+    } data;
+
+    data.v1 = _unused_;
+    data.v2 = (float)Timing_Get_Milli();
+
+    USB_Send_Msg( "c2f", 'W', &data, sizeof( data ) );
+    // ['W', 6269.0, 6519.0]
+    // ['W', 6519.0, 6769.0]
+    // problem is updating of the time is when it is run
+    // this is running at 250 interval so i don't need the bottom check I think
+
+    // well maybe need to check size of buffer
+    // if empty then cancel task can flush also 
+    // if not empty send command and do the cancel + flush
+
+    // send wathdog message and rest 
+    char command = '?';
+    USB_Send_Msg( "cc", 'W', &command, sizeof( command ) );
+    USB_Flush_Input_Buffer();
+    Task_Cancel( &task_message_handling_watchdog ); 
+
+
+    // for motors can just set it to cancel_PWM at a given interval
+
+
+
+    // // if task was active for more than 
+    // if( ( Timing_Get_Milli() - _unused_ ) >= 2500 ) 
+    // {
+    //     // send wathdog message and rest 
+    //     char command = '?';
+    //     USB_Send_Msg( "cc", 'W', &command, sizeof( command ) );
+    //     USB_Flush_Input_Buffer();
+    //     Task_Cancel( &task_message_handling_watchdog ); 
+    // }
 }
 
 /**

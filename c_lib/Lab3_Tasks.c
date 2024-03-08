@@ -2,7 +2,7 @@
 
 
 // equating to 1.1 V per cell nominal 1.2 V
-#define BATTERY_MIN_VOLTAGE 4.4
+#define BATTERY_MIN_VOLTAGE 4.75
 // lowest voltage qick dropoff after switch turned off
 #define BATTERY_CONNECTED_VOLTAGE 2.5
 
@@ -64,7 +64,11 @@ void Low_Battery_Voltage( float _time_since_last ) {
 
     // check if voltage is too low but battery is plugged in
     if ( ( msg.volt < BATTERY_MIN_VOLTAGE ) && ( msg.volt > BATTERY_CONNECTED_VOLTAGE ) ) { 
-        // send low battery message 
+        // Send low battery message 
         USB_Send_Msg("c7sf",'!', &msg, sizeof( msg )); 
+        // Disable motors 
+        MotorPWM_Enable( false ); 
+        // Clear motor task 
+        
     } 
 }

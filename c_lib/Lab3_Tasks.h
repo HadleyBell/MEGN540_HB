@@ -39,6 +39,7 @@
 #include "Encoder.h"
 #include "SerialIO.h"
 #include "Battery_Monitor.h"
+#include "MotorPWM.h"
 
 // Include your lab-specific headers here
 // e.g. #include "SerialIO.h"  // necessary for sending arithmatic results back to user

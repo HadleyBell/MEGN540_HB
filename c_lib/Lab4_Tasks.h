@@ -35,16 +35,41 @@
 #ifndef LAB4_TASKS_H
 #define LAB4_TASKS_H
 
-#include "Task_Management.h"
+// Min Motor Voltage for Running
+#define BATTERY_MOTOR_MIN_VOLTAGE 4.75
 
 // Include your lab-specific headers here
-// e.g. #include "SerialIO.h"  // necessary for sending arithmatic results back to user
-
+#include "Task_Management.h"
+#include "SerialIO.h"
+#include "MotorPWM.h"
+#include "Battery_Monitor.h"
+#include "Encoder.h"
+ 
 // Put your lab-specific tasks here
-// e.g. Task_t task_restart;  ///<-- Lab 1: This flag indicates that the device received a restart command from the hoast. Default inactive.
+
+Task_t task_pwm_set; 
+Task_t task_pwm_stop; 
+Task_t task_send_system_id; 
+
+
+// struct for left and right pwm  
+typedef struct __attribute__( ( __packed__ ) ) {
+   uint16_t left;
+   uint16_t right;
+} PWMdata;
+
+typedef struct __attribute__( ( __packed__ ) ) {
+   uint16_t left;
+   uint16_t right;
+   float time; 
+} PWMdata_t;
 
 // Put your lab-specific task functionality and data_structures (if necessary) here so it is accessable to both
 // message handeling and the Lab main loops.
 // e.g. void Send_Time_Now( float _time_since_last );
+
+void Set_Left_Right_PWM( PWMdata pwm_data ); 
+void Stop_and_Disable_PWM( float _time_since_last );
+void Send_System_Id( float _time_since_last ); 
 
 #endif  // ifndef LAB4_TASKS_H

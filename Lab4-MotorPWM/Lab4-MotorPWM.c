@@ -34,11 +34,13 @@
 #include "Timing.h"            // for Time understanding
 #include "Encoder.h"           // for motor rotational counting
 #include "Battery_Monitor.h"   // for battery monitor 
+#include "MotorPWM.h"          // for drive motors
 
 // Include Lab Sepcific Functionality
 #include "Lab1_Tasks.h"
 #include "Lab2_Tasks.h"
 #include "Lab3_Tasks.h"
+#include "Lab4_Tasks.h"
 
 // put your global variables (only if absolutely required) here.task_send_time
 // Best to identify them as "static" to make them indentified as internal and start with a "_" to identify as internal.
@@ -69,12 +71,16 @@ void Initialize_Modules( float _time_not_used_ )
     // Initalize battery 
     Initialize_Battery_Monitor(); 
 
+    // Initalize motor 
+    Initialize_MotorPWM( 500 ); 
+
     // Setup task handling
     Initialize_Task( &task_restart, Initialize_Modules /*function pointer to call*/ );
 
     // Setup message handling to get processed at some desired rate.
     Initialize_Task( &task_message_handling, Task_Message_Handling );
     // Initialize_Task( &task_message_handling_watchdog, /*watchdog timout period*/,  Task_Message_Handling_Watchdog );
+    Initialize_Task( &task_message_handling_watchdog, Task_Message_Handling_Watchdog );
 
     Task_Activate( &task_message_handling, 0 ); 
 
@@ -92,9 +98,15 @@ void Initialize_Modules( float _time_not_used_ )
     // Battery Low 
     Initialize_Task( &task_low_battery_voltage, Low_Battery_Voltage );
     Task_Activate( &task_low_battery_voltage, 1000.0 ); // Activate to run every 1 sec
-        // Battery Send 
+    // Battery Send 
     Initialize_Task( &task_send_battery_voltage, Send_Battery_Voltage );
 
+    // Motor Stop and Dissable
+    Initialize_Task( &task_pwm_stop, Stop_and_Disable_PWM ); 
+    // Initialize_Task( &task_pwm_set, Set_Left_Right_PWM );
+
+    // System Identification 
+    Initialize_Task( &task_send_system_id, Send_System_Id ); 
 }
 
 /** Main program entry point. This routine configures the hardware required by the application, then
@@ -134,5 +146,11 @@ int main( void )
 
         // re initalize
         Task_Run_If_Ready( &task_restart );
+
+        // motor 
+        Task_Run_If_Ready( &task_pwm_stop ); 
+
+        // System ID 
+        Task_Run_If_Ready( &task_send_system_id ); 
     }
 }
