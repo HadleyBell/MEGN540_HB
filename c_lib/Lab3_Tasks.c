@@ -48,7 +48,6 @@ void Send_Battery_Voltage( float _time_since_last ) {
     USB_Send_Msg( "cf", t_type, &bat_reading, sizeof( bat_reading ) ); 
 }
 
-
 void Update_Battery_Voltage( float _time_since_last ) {
     // get battery voltage update with filter
     Battery_Voltage();

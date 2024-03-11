@@ -178,9 +178,14 @@ void MotorPWM_Set_Right( int16_t pwm )
  */
 int16_t MotorPWM_Get_Left()
 {
-    // check if I need direction here 
+    // get pwm from register
     int16_t pwm;
     pwm = OCR1B; 
+
+    if ( bit_is_set( PORTB, PB1 ) ) {
+        // motor in reverse
+        return -pwm;
+    } 
     return pwm; 
 }
 
@@ -193,6 +198,11 @@ int16_t MotorPWM_Get_Right()
 {
     int16_t pwm;
     pwm = OCR1A; 
+
+    if ( bit_is_set( PORTB, PB2 ) ) {
+        // motor in reverse
+        return -pwm;
+    } 
     return pwm; 
 }
 
