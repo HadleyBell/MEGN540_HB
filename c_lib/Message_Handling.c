@@ -56,39 +56,29 @@ void Task_Message_Handling( float _time_since_last )
     // Look at first message ininput USB 
     char command = USB_Msg_Peek();
 
-    // /* MEGN540 -- LAB 2 */ 
+    // Command processed related to message watchdog
     bool command_processed = false;
 
     // process command
     switch( command ) {
         case '*':
             if( USB_Msg_Length() >= _Message_Length( '*' ) ) {
-                // then process your multiplication...
+                // Remove the command from the usb recieved buffer using the
+                USB_Msg_Get();  
 
-                // remove the command from the usb recieved buffer using the
-                // usb_msg_get() function
-                USB_Msg_Get();  // removes the first character from the received buffer,
-                                // we already know it was a * so no need to save it as a
-                                // variable
-
-                // Build a meaningful structure to put your data in. Here we want two
-                // floats.
+                // Build a meaningful structure to put your data in. Here we want two floats.
                 struct __attribute__( ( __packed__ ) ) {
                     float v1;
                     float v2;
                 } data;
 
-                // interpret bit structure
-                
-                // Copy the bytes from the usb receive buffer into our structure so we
-                // can use the information
-
+                // Copy the bytes from the usb receive buffer into our structure so we can use the information
                 USB_Msg_Read_Into( &data, sizeof( data ) );
 
                 // Call MEGN540_Lab_Task Function
                 Multiply_And_Send( data.v1, data.v2 );
 
-                // /* MEGN540 -- LAB 2 */ 
+                // Command was processed related to watchdog 
                 command_processed = true;
             }
             break;
@@ -124,7 +114,7 @@ void Task_Message_Handling( float _time_since_last )
                 USB_Msg_Read_Into( &data, sizeof( data ) );
                 Add_And_Send( data.v1, data.v2 );
 
-                // /* MEGN540 -- LAB 2 */ 
+                // Command was processed related to watchdog 
                 command_processed = true;
             }
             break;
@@ -142,7 +132,7 @@ void Task_Message_Handling( float _time_since_last )
                 USB_Msg_Read_Into( &data, sizeof( data ) );
                 Subtract_And_Send( data.v1, data.v2 );
 
-                // /* MEGN540 -- LAB 2 */ 
+                // Command was processed related to watchdog 
                 command_processed = true;
             }
             break;
@@ -150,21 +140,18 @@ void Task_Message_Handling( float _time_since_last )
             if( USB_Msg_Length() >= _Message_Length( '~' ) ) {
                 // then process your reset by setting the task_restart flag defined in Lab1_Tasks.h
 
-                // task cancel 
-                // clear all buffers ? 
-                // USB_Send_Byte( 0 ); 
+                // Reset structure message 
+                struct __attribute__((__packed__)) {
+                    char let[7];
+                } msg = { .let = {'R', 'E', 'S', 'E', 'T', ' ', '0'} };
 
-                USB_Send_Byte( 0x6 ); 
-                USB_Send_Byte( 0x66 ); 
-                USB_Send_Byte( 0x0 );  
-                USB_Send_Byte( 0x0 ); 
-                USB_Send_Byte( 0x0 ); 
-                USB_Send_Byte( 0x0 ); 
-                USB_Send_Byte( 0x0 );
+                // Send reset message structure
+                USB_Send_Msg("c7s",'~', &msg, sizeof( msg ) );
 
+                // Activate restart task
                 Task_ReActivate( &task_restart );
 
-                // /* MEGN540 -- LAB 2 */ 
+                // Command was processed related to watchdog 
                 command_processed = true;
             }
             break;
@@ -191,19 +178,8 @@ void Task_Message_Handling( float _time_since_last )
                     USB_Send_Msg( "cc", '?', &command_char, sizeof( command_char ) ); 
                     break;
                 }
-
-                // float time_start = _time_since_last;
-                // // something timing related to time how long the function takes 
-                // // need to execute again and then time it 
-                // Task_Message_Handling( _time_since_last ); // not sure what timing input 
-
-                // float time_end = Timing_Get_Milli(); 
-                // float time_total = time_end - time_start;
                 
-                // USB_Send_Msg( "cf", ' ', &time_total, sizeof( time_total ) );
-                // // USB_Send_Msg( "cf", '-', &ret_val, sizeof( ret_val ) );   
-                
-                // process command 
+                // Command was processed related to watchdog 
                 command_processed = true;             
             }
             break; 
@@ -239,27 +215,10 @@ void Task_Message_Handling( float _time_since_last )
                     break;
                 }
 
-                // uint8_t timing_operation = USB_Msg_Get();
-
-                // uint8_t timing_interval = USB_Msg_Get(); 
-
-                // do I want to make this a Task? It seems like it make a task with update time 
-                // -1 or zero cancels rquest 
-
-
-                // float time_start = _time_since_last;
-
-                // // something timing related to time how long the function takes 
-                // // need to execute again and then time it 
-                // Task_Message_Handling( _time_since_last ); // not sure what timing input 
-
-                // float time_end = Timing_Get_Milli(); 
-                // float time_total = time_end - time_start;
-                
+                // Send current time interval while activating tasks or canceling
                 USB_Send_Msg( "cf", command_char, &time_interval, sizeof( time_interval ) );
-                // USB_Send_Msg( "cf", '-', &ret_val, sizeof( ret_val ) );     
 
-                // process command 
+                // Command was processed related to watchdog 
                 command_processed = true; 
             }
             break; 
@@ -270,6 +229,9 @@ void Task_Message_Handling( float _time_since_last )
                 USB_Msg_Get();
                 // activate to run once 
                 Task_Activate( &task_send_encoder_count, -1 );
+
+                // Command was processed related to watchdog 
+                command_processed = true;
             }
             break;
         case 'E':
@@ -277,7 +239,7 @@ void Task_Message_Handling( float _time_since_last )
             if( USB_Msg_Length() >= _Message_Length( 'E' ) ) {
                 // remove first character the 'e' 
                 USB_Msg_Get();
-                // pop off float time interval
+                // pop off time_interval as float 
                 float time_interval;
                 USB_Msg_Read_Into( &time_interval, sizeof( time_interval ) ); 
 
@@ -288,6 +250,9 @@ void Task_Message_Handling( float _time_since_last )
                     // activate to run at interval 
                     Task_Activate( &task_send_encoder_count, time_interval );
                 }
+
+                // Command was processed related to watchdog 
+                command_processed = true;
             }
             break;
         case 'b':
@@ -297,6 +262,9 @@ void Task_Message_Handling( float _time_since_last )
                 USB_Msg_Get();
                 // activate to run once 
                 Task_Activate( &task_send_battery_voltage, -1 );
+
+                // Command was processed related to watchdog 
+                command_processed = true;
             }
             break;  
         case 'B':
@@ -315,6 +283,9 @@ void Task_Message_Handling( float _time_since_last )
                     // activate to run at interval
                     Task_Activate( &task_send_battery_voltage, time_interval );
                 }
+
+                // Command was processed related to watchdog 
+                command_processed = true;
             }
             break;  
         case 'p':
@@ -328,8 +299,13 @@ void Task_Message_Handling( float _time_since_last )
                 // read into data struct
                 USB_Msg_Read_Into( &data, sizeof( data ) ); 
 
+                // disable stop task 
+                Task_Cancel( &task_pwm_stop ); 
                 // set pwm 
                 Set_Left_Right_PWM( data );
+
+                // Command was processed related to watchdog 
+                command_processed = true;
             }
             break;
         case 'P':
@@ -340,8 +316,22 @@ void Task_Message_Handling( float _time_since_last )
                 USB_Msg_Get();
                 // struct for reading in values 
                 PWMdata_t data; 
+                PWMdata data_pwm; 
                 // read into data struct
                 USB_Msg_Read_Into( &data, sizeof( data ) ); 
+                data_pwm.left = data.left; 
+                data_pwm.right = data.right; 
+                // disable stop task 
+                Task_Cancel( &task_pwm_stop ); 
+
+                // set pwm 
+                Set_Left_Right_PWM( data_pwm );
+                // Activate stop task at input time inteval 
+                Task_Activate( &task_pwm_stop, data.time ); 
+
+                // Command was processed related to watchdog 
+                command_processed = true;
+                
 
                 // try task_run with duation 
                 // Task_Run( &task_pwm_set, data.time );
@@ -362,7 +352,7 @@ void Task_Message_Handling( float _time_since_last )
                 Task_Activate( &task_pwm_stop, -1 ); 
 
 
-                // /* MEGN540 -- LAB 2 */ 
+                // Command was processed related to watchdog 
                 command_processed = true;
             }
             break;  
@@ -374,7 +364,7 @@ void Task_Message_Handling( float _time_since_last )
                 // Run stop task once
                 Task_Activate( &task_pwm_stop, -1 ); 
                 
-                // /* MEGN540 -- LAB 2 */ 
+                // Command was processed related to watchdog 
                 command_processed = true;
             }
             break;  
@@ -386,6 +376,9 @@ void Task_Message_Handling( float _time_since_last )
                 USB_Msg_Get();
                 // Activate send system id task 
                 Task_Activate( &task_send_system_id, -1 ); 
+
+                // Command was processed related to watchdog 
+                command_processed = true;
             }
             break;  
         case 'Q':
@@ -396,20 +389,26 @@ void Task_Message_Handling( float _time_since_last )
                 // Get time interval
                 float time_interval;
                 USB_Msg_Read_Into( &time_interval, sizeof( time_interval ) ); 
-                // Activate send system id task with interval 
-                Task_Activate( &task_send_system_id, time_interval ); 
+
+                // Check if task should cancel or activate
+                if ( time_interval <= 0 ) {
+                    Task_Cancel( &task_send_system_id ); 
+                } else {
+                    // Activate send system id task with interval 
+                    Task_Activate( &task_send_system_id, time_interval ); 
+                }
+
+                // Command was processed related to watchdog 
+                command_processed = true;
             }
             break;  
         default:
-            // What to do if you dont recognize the command character
-          
-            // USB_Send_Byte( 0x3 ); 
-            // USB_Send_Byte( 0x63 ); 
-            // USB_Send_Byte( 0x0 );  
-            // USB_Send_Byte( 0x3f );
+            // Don't recognise a command character send ? followed by char 
+            // Send error via USB
+            USB_Send_Msg("cc", '?', &command, sizeof( command ) );
 
-            // USB_Flush_Input_Buffer(); 
-            // still have an issue with the buffer somehow 
+            // Flush input buffer
+            USB_Flush_Input_Buffer(); 
 
             break;
     }
@@ -437,31 +436,35 @@ void Task_Message_Handling( float _time_since_last )
  */
 void Task_Message_Handling_Watchdog( float _unused_ )
 {
-    // uint16_t w = (uint16_t )_unused_; 
-
-    struct __attribute__( ( __packed__ ) ) {
-        float v1;
-        float v2;
-    } data;
-
-    data.v1 = _unused_;
-    data.v2 = (float)Timing_Get_Milli();
-
-    USB_Send_Msg( "c2f", 'W', &data, sizeof( data ) );
-    // ['W', 6269.0, 6519.0]
-    // ['W', 6519.0, 6769.0]
-    // problem is updating of the time is when it is run
-    // this is running at 250 interval so i don't need the bottom check I think
-
-    // well maybe need to check size of buffer
-    // if empty then cancel task can flush also 
-    // if not empty send command and do the cancel + flush
-
-    // send wathdog message and rest 
-    char command = '?';
-    USB_Send_Msg( "cc", 'W', &command, sizeof( command ) );
+    // Flush input buffer 
     USB_Flush_Input_Buffer();
-    Task_Cancel( &task_message_handling_watchdog ); 
+
+
+    // // uint16_t w = (uint16_t )_unused_; 
+
+    // // Other mainly used for testing when it runs
+    // struct __attribute__( ( __packed__ ) ) {
+    //     float v1;
+    //     float v2;
+    // } data;
+
+    // data.v1 = _unused_;
+    // data.v2 = (float)Timing_Get_Milli();
+
+    // USB_Send_Msg( "c2f", 'W', &data, sizeof( data ) );
+    // // ['W', 6269.0, 6519.0]
+    // // ['W', 6519.0, 6769.0]
+    // // problem is updating of the time is when it is run
+    // // this is running at 250 interval so i don't need the bottom check I think
+
+    // // well maybe need to check size of buffer
+    // // if empty then cancel task can flush also 
+    // // if not empty send command and do the cancel + flush
+
+    // // send wathdog message and rest 
+    // char command = '?';
+    // USB_Send_Msg( "cc", 'W', &command, sizeof( command ) );
+    // Task_Cancel( &task_message_handling_watchdog ); 
 
 
     // for motors can just set it to cancel_PWM at a given interval

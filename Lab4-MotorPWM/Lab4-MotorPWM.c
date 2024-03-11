@@ -144,13 +144,13 @@ int main( void )
         Task_Run_If_Ready( &task_message_handling_watchdog );
         Timing_Set_Loop_Time( loop_start_time );
 
-        // re initalize
-        Task_Run_If_Ready( &task_restart );
-
         // motor 
         Task_Run_If_Ready( &task_pwm_stop ); 
 
         // System ID 
         Task_Run_If_Ready( &task_send_system_id ); 
+
+        // re initalize
+        Task_Run_If_Ready( &task_restart );
     }
 }
