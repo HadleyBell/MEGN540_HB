@@ -140,11 +140,11 @@ void MotorPWM_Set_Left( int16_t pwm )
     // check direction
     if ( pwm >= 0 ) {
         // forward        
-        PORTB &= ~( 1 << PB1 ); 
+        PORTB &= ~( 1 << PB2 ); 
         OCR1B = pwm; 
     } else {
         // reverse 
-        PORTB |= ( 1 << PB1 ); 
+        PORTB |= ( 1 << PB2 ); 
         OCR1B = -pwm; 
     }
     // Enable PWM 
@@ -160,11 +160,11 @@ void MotorPWM_Set_Right( int16_t pwm )
     // check direction
     if ( pwm >= 0 ) {
         // forward 
-        PORTB &= ~( 1 << PB2 ); 
+        PORTB &= ~( 1 << PB1 ); 
         OCR1A = pwm; 
     } else {
         // reverse 
-        PORTB |= ( 1 << PB2 ); 
+        PORTB |= ( 1 << PB1 ); 
         OCR1A = -pwm; 
     }
     // Enable PWM 
@@ -182,7 +182,7 @@ int16_t MotorPWM_Get_Left()
     int16_t pwm;
     pwm = OCR1B; 
 
-    if ( bit_is_set( PORTB, PB1 ) ) {
+    if ( bit_is_set( PORTB, PB2 ) ) {
         // motor in reverse
         return -pwm;
     } 
@@ -199,7 +199,7 @@ int16_t MotorPWM_Get_Right()
     int16_t pwm;
     pwm = OCR1A; 
 
-    if ( bit_is_set( PORTB, PB2 ) ) {
+    if ( bit_is_set( PORTB, PB1 ) ) {
         // motor in reverse
         return -pwm;
     } 
