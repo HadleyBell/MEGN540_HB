@@ -299,6 +299,119 @@ void Task_Message_Handling( float _time_since_last )
                 command_processed = true;
             }
             break;
+            ase 'p':
+                // sets pwm command for left and right, if power is acceptable range
+                // input chh
+                if( USB_Msg_Length() >= _Message_Length( 'p' ) )
+            {
+                // remove first character the 'p'
+                USB_Msg_Get();
+                // struct for reading in values
+                PWMdata data;
+                // read into data struct
+                USB_Msg_Read_Into( &data, sizeof( data ) );
+
+                // disable stop task
+                Task_Cancel( &task_pwm_stop );
+                // set pwm
+                Set_Left_Right_PWM( data );
+
+                // Command was processed related to watchdog
+                command_processed = true;
+            }
+            break;
+        case 'P':
+            // sets pwm command for left and right, if power is acceptable with sign direction
+            // input chhf
+            if( USB_Msg_Length() >= _Message_Length( 'P' ) ) {
+                // remove first character the 'p'
+                USB_Msg_Get();
+                // struct for reading in values
+                PWMdata_t data;
+                PWMdata data_pwm;
+                // read into data struct
+                USB_Msg_Read_Into( &data, sizeof( data ) );
+                data_pwm.left  = data.left;
+                data_pwm.right = data.right;
+                // disable stop task
+                Task_Cancel( &task_pwm_stop );
+
+                // set pwm
+                Set_Left_Right_PWM( data_pwm );
+                // Activate stop task at input time inteval
+                Task_Activate( &task_pwm_stop, data.time );
+
+                // Command was processed related to watchdog
+                command_processed = true;
+
+                // try task_run with duation
+                // Task_Run( &task_pwm_set, data.time );
+                // NO this is wrong maybe somethign with task_run( &task( time last ran ) )
+                // check time_last_ran and current time
+                // maybe something with a task cancel motros then specify time interval, but this would always run will not just run once?
+
+                // uint32_t current_milli = Timing_Get_Milli(); // current
+                // data.time; // time for pwm to run for
+            }
+            break;
+        case 's':
+            // stops pwm and dissables motors
+            if( USB_Msg_Length() >= _Message_Length( 's' ) ) {
+                // remove first character the 's'
+                USB_Msg_Get();
+                // Run stop task once
+                Task_Activate( &task_pwm_stop, -1 );
+
+                // Command was processed related to watchdog
+                command_processed = true;
+            }
+            break;
+        case 'S':
+            // stops pwm and dissables motors
+            if( USB_Msg_Length() >= _Message_Length( 'S' ) ) {
+                // remove first character the 'S'
+                USB_Msg_Get();
+                // Run stop task once
+                Task_Activate( &task_pwm_stop, -1 );
+
+                // Command was processed related to watchdog
+                command_processed = true;
+            }
+            break;
+        case 'q':
+            // send system identifiaciton data back to host
+            // output time, pwm_l, pwm_r, encoderL, encoderR
+            if( USB_Msg_Length() >= _Message_Length( 'q' ) ) {
+                // remove first character the 'q'
+                USB_Msg_Get();
+                // Activate send system id task
+                Task_Activate( &task_send_system_id, -1 );
+
+                // Command was processed related to watchdog
+                command_processed = true;
+            }
+            break;
+        case 'Q':
+            // send sys identifaction at a given interval
+            if( USB_Msg_Length() >= _Message_Length( 'Q' ) ) {
+                // remove first character the 'Q'
+                USB_Msg_Get();
+                // Get time interval
+                float time_interval;
+                USB_Msg_Read_Into( &time_interval, sizeof( time_interval ) );
+
+                // Check if task should cancel or activate
+                if( time_interval <= 0 ) {
+                    Task_Cancel( &task_send_system_id );
+                } else {
+                    // Activate send system id task with interval
+                    Task_Activate( &task_send_system_id, time_interval );
+                }
+
+                // Command was processed related to watchdog
+                command_processed = true;
+            }
+            break;
         default:
             // What to do if you dont recognize the command character
             USB_Send_Byte( '^' );
