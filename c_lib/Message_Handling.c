@@ -411,6 +411,65 @@ void Task_Message_Handling( float _time_since_last )
                 command_processed = true;
             }
             break;
+        case 'd':
+            // specifies the distance to drive (linear followed by angular).
+            // input cff
+            if( USB_Msg_Length() >= _Message_Length( 'd' ) ) {
+
+                USB_Msg_Get();
+                // struct for reading in values
+                distanceData data;
+                // read into data struct
+                USB_Msg_Read_Into( &data, sizeof( data ) );
+
+                // Command was processed related to watchdog
+                command_processed = true;
+            }
+        case 'D':
+            // specifies the distance to drive (linear followed by angular), terminates
+            // after X milliseconds as specified by the third float. If the third float is
+            // negative, the car shall stop.
+            // input cfff
+            if( USB_Msg_Length() >= _Message_Length( 'D' ) ) {
+
+                USB_Msg_Get();
+                // struct for reading in values
+                distanceData data;
+                // read into data struct
+                USB_Msg_Read_Into( &data, sizeof( data ) );
+
+                // Command was processed related to watchdog
+                command_processed = true;
+            }
+        case 'v':
+            // specifies the speed to drive (linear followed by angular)
+            // input c
+            if( USB_Msg_Length() >= _Message_Length( 'v' ) ) {
+                / USB_Msg_Get();
+                // struct for reading in values
+                velocityData data;
+                // read into data struct
+                USB_Msg_Read_Into( &data, sizeof( data ) );
+
+                // Command was processed related to watchdog
+                command_processed = true;
+            }
+        case 'V':
+            // Specifies the speed to drive (linear followed by angular), terminates after
+            // X milliseconds as specified by the third float. If the third float is negative,
+            // the car shall stop.
+            // input cf
+            if( USB_Msg_Length() >= _Message_Length( 'V' ) ) {
+
+                USB_Msg_Get();
+                // struct for reading in values
+                velocityData data;
+                // read into data struct
+                USB_Msg_Read_Into( &data, sizeof( data ) );
+
+                // Command was processed related to watchdog
+                command_processed = true;
+            }
         default:
             // What to do if you dont recognize the command character
             USB_Send_Byte( '^' );
