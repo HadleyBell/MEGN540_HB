@@ -34,7 +34,8 @@
  *  The volatile keyword is because they are changing in an ISR, the static means they are not
  *  visible (not global) outside of this file.
  */
-static volatile uint32_t _count_ms = 0;
+static volatile uint32_t _count_ms        = 0;
+static volatile uint32_t _last_loop_micro = 0;
 
 /**
  * Function Initialize_Timing initializes Timer0 to have a prescalar of XX and initializes the compare
@@ -134,4 +135,16 @@ ISR( TIMER0_COMPA_vect )  // DEFINE THE COMPARISON TRIGGER
 
     // take care of upticks of both our internal and external variables.
     _count_ms++;
+}
+
+uint32_t Timing_Set_Loop_Time( const Time_t start_time )
+{
+    // loop time in micro seconds (milli + micro)
+    _last_loop_micro = Timing_Get_Micro() - start_time.microsec;
+    return _last_loop_micro;
+}
+
+uint32_t Timing_Get_Loop_Time()
+{
+    return _last_loop_micro;
 }

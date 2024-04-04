@@ -1,6 +1,7 @@
 #include "Battery_Monitor.h"
 
 #include "Encoder.h"
+#include "Filter.h"
 
 static const float BITS_TO_BATTERY_VOLTS = 0.005004888;
 // vref = 2.56
@@ -56,4 +57,12 @@ float Battery_Voltage()
     data.split.MSB = ADCH & 0b00000011;
 
     return data.value * BITS_TO_BATTERY_VOLTS;
+}
+
+/**
+ * Function Battery_Recent returns most recent voltage post filter
+ */
+float Battery_Recent()
+{
+    return Filter_Last_Output( &Voltage_Filter );
 }

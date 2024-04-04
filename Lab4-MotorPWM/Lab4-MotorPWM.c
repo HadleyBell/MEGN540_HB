@@ -64,12 +64,9 @@ void Initialize_Modules( float _time_not_used_ )
 
     // Initialize all modules except USB (it can only be called once without messing things up)
     Initialize_Timing();
-
-    // Initialize encoders
     Initialize_Encoders();
-
-    // Initalize battery
     Initialize_Battery_Monitor();
+    Initialize_Battery_Filter();
 
     // Initalize motor
     Initialize_MotorPWM( 500 );
@@ -89,17 +86,15 @@ void Initialize_Modules( float _time_not_used_ )
     Initialize_Task( &task_time_loop, Send_Loop_Time );
     Initialize_Task( &task_send_time, Send_Time_Now );
 
-    // Encoder Tasks
-    Initialize_Task( &task_send_encoder_count, Send_Encoder_Count );
+    // Encoder tasks
+    Initialize_Task( &task_send_encoders, Send_Encoders );
 
-    // Battery Update
-    Initialize_Task( &task_update_battery_voltage, Update_Battery_Voltage );
-    Task_Activate( &task_update_battery_voltage, 0.002 );  // Activate to update every 2 ms
-    // Battery Low
-    Initialize_Task( &task_low_battery_voltage, Low_Battery_Voltage );
-    Task_Activate( &task_low_battery_voltage, 1000.0 );  // Activate to run every 1 sec
-    // Battery Send
-    Initialize_Task( &task_send_battery_voltage, Send_Battery_Voltage );
+    // Battery tasks
+    // will likely also just be the init
+    // chance of needing a filter read/process/report task, so that time loop can do it
+    Initialize_Task( &task_send_battery, Send_Battery );
+    Initialize_Task( &task_battery_upkeep, Battery_Upkeep );
+    Task_Activate( &task_battery_upkeep, 0.002 );
 
     // Motor Stop and Dissable
     Initialize_Task( &task_pwm_stop, Stop_and_Disable_PWM );
@@ -131,12 +126,10 @@ int main( void )
         Task_Run_If_Ready( &task_send_time );
         Task_Run_If_Ready( &task_time_loop );
 
-        // encoder
-        Task_Run_If_Ready( &task_send_encoder_count );
-        // battery
-        Task_Run_If_Ready( &task_send_battery_voltage );
-        Task_Run_If_Ready( &task_update_battery_voltage );
-        Task_Run_If_Ready( &task_low_battery_voltage );
+        // Lab 3 tasks
+        Task_Run_If_Ready( &task_send_encoders );
+        Task_Run_If_Ready( &task_send_battery );
+        Task_Run_If_Ready( &task_battery_upkeep );
 
         // usb watchdog
         Task_Run_If_Ready( &task_message_handling_watchdog );

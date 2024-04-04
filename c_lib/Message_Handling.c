@@ -299,11 +299,10 @@ void Task_Message_Handling( float _time_since_last )
                 command_processed = true;
             }
             break;
-            ase 'p':
-                // sets pwm command for left and right, if power is acceptable range
-                // input chh
-                if( USB_Msg_Length() >= _Message_Length( 'p' ) )
-            {
+        case 'p':
+            // sets pwm command for left and right, if power is acceptable range
+            // input chh
+            if( USB_Msg_Length() >= _Message_Length( 'p' ) ) {
                 // remove first character the 'p'
                 USB_Msg_Get();
                 // struct for reading in values
