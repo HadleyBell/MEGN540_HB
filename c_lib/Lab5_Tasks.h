@@ -35,6 +35,9 @@
 #ifndef LAB5_TASKS_H
 #define LAB5_TASKS_H
 
+// Min Motor Voltage for Running
+#define BATTERY_MOTOR_MIN_VOLTAGE 4.75
+
 // Include your lab-specific headers here
 #include "Battery_Monitor.h"
 #include "Encoder.h"
@@ -45,7 +48,7 @@
 // struct for left and right pwm
 typedef struct __attribute__( ( __packed__ ) ) {
     float linear;
-    float angular;
+    float angular;  // 0 if you dont want the car to turn
 } distanceData;
 
 typedef struct __attribute__( ( __packed__ ) ) {
@@ -57,5 +60,7 @@ typedef struct __attribute__( ( __packed__ ) ) {
 Task_t task_update_controllers;
 Controller_t left_controller;
 Controller_t right_controller;
+
+void update_controller();
 
 #endif  // ifndef LAB5_TASKS_H
