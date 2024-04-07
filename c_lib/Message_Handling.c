@@ -445,11 +445,18 @@ void Task_Message_Handling( float _time_since_last )
             // specifies the speed to drive (linear followed by angular)
             // input c
             if( USB_Msg_Length() >= _Message_Length( 'v' ) ) {
-                / USB_Msg_Get();
+                USB_Msg_Get();
                 // struct for reading in values
                 velocityData data;
                 // read into data struct
                 USB_Msg_Read_Into( &data, sizeof( data ) );
+
+                float left_vel = Left_Displacement(&skid_controller, data.linear, data.angular);
+                float right_vel = Right_Displacement(&skid_controller, data.linear, data.angular);
+
+                Controller_Set_Target_Velocity(&skid_controller.controller_left, left_vel);
+                Controller_Set_Target_Velocity(&skid_controller.controller_right, right_vel);
+                Task_Activate(&task_update_controllers_vel, -1);
 
                 // Command was processed related to watchdog
                 command_processed = true;

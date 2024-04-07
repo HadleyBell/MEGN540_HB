@@ -10,6 +10,8 @@ void Initialize_Skid_Steer( Skid_Steer_Controller_t* p_skid_steer, float* z_tran
 
     Initialize_Controller( &p_skid_steer->controller_left, kp, z_transform_numerator, z_transform_denominator, z_transform_order, descritization_period );
     Initialize_Controller( &p_skid_steer->controller_right, kp, z_transform_numerator, z_transform_denominator, z_transform_order, descritization_period );
+    p_skid_steer->measurement_left_fcn_ptr = Encoder_Counts_Left;
+    p_skid_steer->measurement_right_fcn_ptr = Encoder_Counts_Right;
 }
 
 /**

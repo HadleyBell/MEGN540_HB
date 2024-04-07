@@ -37,6 +37,8 @@
 #define SKID_STEER_CONTROLLER_H
 
 #include "Controller.h"
+#include "Encoder.h"
+#include "MotorPWM.h"
 
 typedef struct {
     Controller_t controller_left;   // Z-Transform Controller for the left-side drive
@@ -114,5 +116,9 @@ void Skid_Steer_Command_Velocity( Skid_Steer_Controller_t* p_skid_steer, float l
  *
  */
 void Skid_Steer_Control_Update( Skid_Steer_Controller_t* p_skid_steer, float ellapsed_time );
+
+float Left_Displacement(Skid_Steer_Controller_t* p_skin_steer, float linear, float angular);
+
+float Right_Displacement(Skid_Steer_Controller_t* p_skin_steer, float linear, float angular);
 
 #endif

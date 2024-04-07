@@ -37,6 +37,7 @@
 
 // Include realted interfaces
 #include "SerialIO.h"
+#include "Skid_Steer_Controller.h"
 
 // Include Lab Specific Task Definitions
 #include "Lab1_Tasks.h"

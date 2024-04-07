@@ -27,7 +27,7 @@ float Controller_Update( Controller_t* p_cont, float measurement, float dt ) {
 
 float Controller_Last( Controller_t* p_cont)
 {
-    Filter_Last_Output(&p_cont->controller);
+    return Filter_Last_Output(&p_cont->controller);
 }
 
 void Controller_SetTo(Controller_t* p_cont, float measurement )
