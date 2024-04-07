@@ -106,11 +106,11 @@ void Initialize_Modules( float _time_not_used_ )
     // System Identification
     Initialize_Task( &task_send_system_id, Send_System_Id );
 
-    float a[2] = {1.00, -0.9975};
-    float b[2] = {2.43, 2.41};
+    // float a[2] = {1.00, -0.9975};
+    // float b[2] = {2.43, 2.41};
 
-    Initialize_Skid_Steer(&skid_controller, b, a, 1, 1.0, 1.0, 1.0, 2.6, 1.55, 0,0,0,0 );
-    Initialize_Task(&task_update_controllers_vel, Send_Encoders_velocity);      
+    // Initialize_Skid_Steer(&skid_controller, b, a, 1, 1.0, 1.0, 1.0, 2.6, 1.55, NULL, NULL, NULL, NULL);
+    // Initialize_Task(&task_update_controllers_vel, Send_Encoders_velocity);      
 }
 
 /** Main program entry point. This routine configures the hardware required by the application, then
