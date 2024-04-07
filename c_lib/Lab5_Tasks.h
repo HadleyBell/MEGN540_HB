@@ -44,6 +44,8 @@
 #include "MotorPWM.h"
 #include "SerialIO.h"
 #include "Task_Management.h"
+#include "Skid_Steer_Controller.h"
+#include "Controller.h"
 
 // struct for left and right pwm
 typedef struct __attribute__( ( __packed__ ) ) {
@@ -60,6 +62,8 @@ typedef struct __attribute__( ( __packed__ ) ) {
 Task_t task_update_controllers;
 Controller_t left_controller;
 Controller_t right_controller;
+Skid_Steer_Controller_t skid_controller;
+
 
 void update_controller();
 
