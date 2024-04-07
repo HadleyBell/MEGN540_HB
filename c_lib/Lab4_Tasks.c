@@ -23,7 +23,7 @@ void Stop_and_Disable_PWM( float _time_since_last )
 {
     // Disable motors 
     MotorPWM_Enable( false );
-    // Stop PWM 
+    // Stop PWM
     MotorPWM_Set_Left( 0 ); 
     MotorPWM_Set_Right( 0 ); 
 }

@@ -292,19 +292,19 @@ void Task_Message_Handling( float _time_since_last )
             // sets pwm command for left and right, if power is acceptable range
             // input chh
             if( USB_Msg_Length() >= _Message_Length( 'p' ) ) {
-                // remove first character the 'p' 
+                // remove first character the 'p'
                 USB_Msg_Get();
-                // struct for reading in values 
-                PWMdata data; 
+                // struct for reading in values
+                PWMdata data;
                 // read into data struct
-                USB_Msg_Read_Into( &data, sizeof( data ) ); 
+                USB_Msg_Read_Into( &data, sizeof( data ) );
 
-                // disable stop task 
-                Task_Cancel( &task_pwm_stop ); 
-                // set pwm 
+                // disable stop task
+                Task_Cancel( &task_pwm_stop );
+                // set pwm
                 Set_Left_Right_PWM( data );
 
-                // Command was processed related to watchdog 
+                // Command was processed related to watchdog
                 command_processed = true;
             }
             break;
@@ -312,120 +312,175 @@ void Task_Message_Handling( float _time_since_last )
             // sets pwm command for left and right, if power is acceptable with sign direction
             // input chhf
             if( USB_Msg_Length() >= _Message_Length( 'P' ) ) {
-                // remove first character the 'p' 
+                // remove first character the 'p'
                 USB_Msg_Get();
-                // struct for reading in values 
-                PWMdata_t data; 
-                PWMdata data_pwm; 
+                // struct for reading in values
+                PWMdata_t data;
+                PWMdata data_pwm;
                 // read into data struct
-                USB_Msg_Read_Into( &data, sizeof( data ) ); 
-                data_pwm.left = data.left; 
-                data_pwm.right = data.right; 
-                // disable stop task 
-                Task_Cancel( &task_pwm_stop ); 
+                USB_Msg_Read_Into( &data, sizeof( data ) );
+                data_pwm.left  = data.left;
+                data_pwm.right = data.right;
+                // disable stop task
+                Task_Cancel( &task_pwm_stop );
 
-                // set pwm 
+                // set pwm
                 Set_Left_Right_PWM( data_pwm );
-                // Activate stop task at input time inteval 
-                Task_Activate( &task_pwm_stop, data.time ); 
+                // Activate stop task at input time inteval
+                Task_Activate( &task_pwm_stop, data.time );
 
-                // Command was processed related to watchdog 
+                // Command was processed related to watchdog
                 command_processed = true;
-                
 
-                // try task_run with duation 
+                // try task_run with duation
                 // Task_Run( &task_pwm_set, data.time );
                 // NO this is wrong maybe somethign with task_run( &task( time last ran ) )
-                // check time_last_ran and current time 
-                // maybe something with a task cancel motros then specify time interval, but this would always run will not just run once? 
+                // check time_last_ran and current time
+                // maybe something with a task cancel motros then specify time interval, but this would always run will not just run once?
 
-                // uint32_t current_milli = Timing_Get_Milli(); // current 
-                // data.time; // time for pwm to run for 
+                // uint32_t current_milli = Timing_Get_Milli(); // current
+                // data.time; // time for pwm to run for
             }
-            break;  
+            break;
         case 's':
             // stops pwm and dissables motors
             if( USB_Msg_Length() >= _Message_Length( 's' ) ) {
-                // remove first character the 's' 
+                // remove first character the 's'
                 USB_Msg_Get();
                 // Run stop task once
-                Task_Activate( &task_pwm_stop, -1 ); 
+                Task_Activate( &task_pwm_stop, -1 );
 
-
-                // Command was processed related to watchdog 
+                // Command was processed related to watchdog
                 command_processed = true;
             }
-            break;  
+            break;
         case 'S':
             // stops pwm and dissables motors
             if( USB_Msg_Length() >= _Message_Length( 'S' ) ) {
-                // remove first character the 'S' 
+                // remove first character the 'S'
                 USB_Msg_Get();
                 // Run stop task once
-                Task_Activate( &task_pwm_stop, -1 ); 
-                
-                // Command was processed related to watchdog 
+                Task_Activate( &task_pwm_stop, -1 );
+
+                // Command was processed related to watchdog
                 command_processed = true;
             }
-            break;  
+            break;
         case 'q':
             // send system identifiaciton data back to host
             // output time, pwm_l, pwm_r, encoderL, encoderR
             if( USB_Msg_Length() >= _Message_Length( 'q' ) ) {
-                // remove first character the 'q' 
+                // remove first character the 'q'
                 USB_Msg_Get();
-                // Activate send system id task 
-                Task_Activate( &task_send_system_id, -1 ); 
+                // Activate send system id task
+                Task_Activate( &task_send_system_id, -1 );
 
-                // Command was processed related to watchdog 
+                // Command was processed related to watchdog
                 command_processed = true;
             }
-            break;  
+            break;
         case 'Q':
-            // send sys identifaction at a given interval 
+            // send sys identifaction at a given interval
             if( USB_Msg_Length() >= _Message_Length( 'Q' ) ) {
-                // remove first character the 'Q' 
+                // remove first character the 'Q'
                 USB_Msg_Get();
                 // Get time interval
                 float time_interval;
-                USB_Msg_Read_Into( &time_interval, sizeof( time_interval ) ); 
+                USB_Msg_Read_Into( &time_interval, sizeof( time_interval ) );
 
                 // Check if task should cancel or activate
-                if ( time_interval <= 0 ) {
-                    Task_Cancel( &task_send_system_id ); 
+                if( time_interval <= 0 ) {
+                    Task_Cancel( &task_send_system_id );
                 } else {
-                    // Activate send system id task with interval 
-                    Task_Activate( &task_send_system_id, time_interval ); 
+                    // Activate send system id task with interval
+                    Task_Activate( &task_send_system_id, time_interval );
                 }
 
-                // Command was processed related to watchdog 
+                // Command was processed related to watchdog
                 command_processed = true;
             }
-            break;  
+            break;
+        case 'd':
+            // specifies the distance to drive (linear followed by angular).
+            // input cff
+            if( USB_Msg_Length() >= _Message_Length( 'd' ) ) {
+
+                USB_Msg_Get();
+                // struct for reading in values
+                distanceData data;
+                // read into data struct
+                USB_Msg_Read_Into( &data, sizeof( data ) );
+
+                // Command was processed related to watchdog
+                command_processed = true;
+            }
+        case 'D':
+            // specifies the distance to drive (linear followed by angular), terminates
+            // after X milliseconds as specified by the third float. If the third float is
+            // negative, the car shall stop.
+            // input cfff
+            if( USB_Msg_Length() >= _Message_Length( 'D' ) ) {
+
+                USB_Msg_Get();
+                // struct for reading in values
+                distanceData data;
+                // read into data struct
+                USB_Msg_Read_Into( &data, sizeof( data ) );
+
+                // Command was processed related to watchdog
+                command_processed = true;
+            }
+        case 'v':
+            // specifies the speed to drive (linear followed by angular)
+            // input c
+            if( USB_Msg_Length() >= _Message_Length( 'v' ) ) {
+                USB_Msg_Get();
+                // struct for reading in values
+                velocityData data;
+                // read into data struct
+                USB_Msg_Read_Into( &data, sizeof( data ) );
+
+                float left_vel = Left_Displacement(&skid_controller, data.linear, data.angular);
+                float right_vel = Right_Displacement(&skid_controller, data.linear, data.angular);
+                left_vel = Saturate(left_vel, MotorPWM_Get_Max());
+                right_vel = Saturate(right_vel, MotorPWM_Get_Max());
+
+                Controller_Set_Target_Velocity(&skid_controller.controller_left, left_vel);
+                Controller_Set_Target_Velocity(&skid_controller.controller_right, right_vel);
+                Task_Activate(&task_update_controllers_vel, -1);
+
+                // Command was processed related to watchdog
+                command_processed = true;
+            }
+        case 'V':
+            // Specifies the speed to drive (linear followed by angular), terminates after
+            // X milliseconds as specified by the third float. If the third float is negative,
+            // the car shall stop.
+            // input cf
+            if( USB_Msg_Length() >= _Message_Length( 'V' ) ) {
+
+                USB_Msg_Get();
+                // struct for reading in values
+                velocityData data;
+                // read into data struct
+                USB_Msg_Read_Into( &data, sizeof( data ) );
+
+                // Command was processed related to watchdog
+                command_processed = true;
+            }
         default:
-            // Don't recognise a command character send ? followed by char 
-            // Send error via USB
-            USB_Send_Msg("cc", '?', &command, sizeof( command ) );
-
-            // Flush input buffer
-            USB_Flush_Input_Buffer(); 
-
+            // What to do if you dont recognize the command character
+            USB_Send_Byte( '^' );
+            // um comment this line if you want to stop the display of each command on top of one another.
+            USB_Flush_Input_Buffer();
             break;
     }
 
-    // function will run if there is data in input buffer 
-    // so command processed = false empty data so it should be activated 
-    // so I don't want to activate every loop as the timer will never be triggered 
-    // just activate if command processed, 
-    // could check if empty as well but it wouldn't hurt anyways 
-
     //********* MEGN540 -- LAB 2 ************//
-    // if( command_processed && ( USB_Msg_Length() == 0 ) ) {
     if( command_processed ) {
         // RESET the WATCHDOG TIMER
-        Task_Activate( &task_message_handling_watchdog, 250 );
+        Task_Activate( &task_message_handling_watchdog, 0.0 );
     }
-
 }
 
 /**
@@ -436,50 +491,7 @@ void Task_Message_Handling( float _time_since_last )
  */
 void Task_Message_Handling_Watchdog( float _unused_ )
 {
-    // Flush input buffer 
     USB_Flush_Input_Buffer();
-
-
-    // // uint16_t w = (uint16_t )_unused_; 
-
-    // // Other mainly used for testing when it runs
-    // struct __attribute__( ( __packed__ ) ) {
-    //     float v1;
-    //     float v2;
-    // } data;
-
-    // data.v1 = _unused_;
-    // data.v2 = (float)Timing_Get_Milli();
-
-    // USB_Send_Msg( "c2f", 'W', &data, sizeof( data ) );
-    // // ['W', 6269.0, 6519.0]
-    // // ['W', 6519.0, 6769.0]
-    // // problem is updating of the time is when it is run
-    // // this is running at 250 interval so i don't need the bottom check I think
-
-    // // well maybe need to check size of buffer
-    // // if empty then cancel task can flush also 
-    // // if not empty send command and do the cancel + flush
-
-    // // send wathdog message and rest 
-    // char command = '?';
-    // USB_Send_Msg( "cc", 'W', &command, sizeof( command ) );
-    // Task_Cancel( &task_message_handling_watchdog ); 
-
-
-    // for motors can just set it to cancel_PWM at a given interval
-
-
-
-    // // if task was active for more than 
-    // if( ( Timing_Get_Milli() - _unused_ ) >= 2500 ) 
-    // {
-    //     // send wathdog message and rest 
-    //     char command = '?';
-    //     USB_Send_Msg( "cc", 'W', &command, sizeof( command ) );
-    //     USB_Flush_Input_Buffer();
-    //     Task_Cancel( &task_message_handling_watchdog ); 
-    // }
 }
 
 /**

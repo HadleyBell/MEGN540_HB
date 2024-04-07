@@ -22,10 +22,9 @@ void Initialize_MotorPWM( uint16_t MAX_PWM )
     // Clock Selection 
     // H bridge max pwm 250 kHz 
     // 16 MHz / 64 = 250 kHz 
-    // TCCR1B |= ( ( 0 << CS12 ) & ( 1 << CS11 ) & ( 1 << CS10 ) ); 
     // start with no prescallar 
     TCCR1B |= ( 1 << CS10 ); 
-    // TCCR1B |= ( ( 1 << CS32 ) | ( 0 << CS31) | ( 1 << CS30 ) );
+
 
     // TOP selection ICR1 from max pwm input
     // ICR1 = MAX_PWM; 

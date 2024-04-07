@@ -35,16 +35,37 @@
 #ifndef LAB5_TASKS_H
 #define LAB5_TASKS_H
 
-#include "Task_Management.h"
+// Min Motor Voltage for Running
+#define BATTERY_MOTOR_MIN_VOLTAGE 4.75
 
 // Include your lab-specific headers here
-// e.g. #include "SerialIO.h"  // necessary for sending arithmatic results back to user
+#include "Battery_Monitor.h"
+#include "Encoder.h"
+#include "MotorPWM.h"
+#include "SerialIO.h"
+#include "Task_Management.h"
+#include "Skid_Steer_Controller.h"
+#include "Controller.h"
+
+// struct for left and right pwm
+typedef struct __attribute__( ( __packed__ ) ) {
+    float linear;
+    float angular;  // 0 if you dont want the car to turn
+} distanceData;
+
+typedef struct __attribute__( ( __packed__ ) ) {
+    float linear;
+    float angular;
+} velocityData;
 
 // Put your lab-specific tasks here
-// e.g. Task_t task_restart;  ///<-- Lab 1: This flag indicates that the device received a restart command from the hoast. Default inactive.
+Task_t task_update_controllers_vel;
+Task_t task_update_controllers_pos;
+Controller_t left_controller;
+Controller_t right_controller;
+Skid_Steer_Controller_t skid_controller;
 
-// Put your lab-specific task functionality and data_structures (if necessary) here so it is accessable to both
-// message handeling and the Lab main loops.
-// e.g. void Send_Time_Now( float _time_since_last );
+void Send_Encoders_position(float __unused);
+void Send_Encoders_velocity(float __unused);
 
 #endif  // ifndef LAB5_TASKS_H
