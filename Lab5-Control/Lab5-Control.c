@@ -110,6 +110,8 @@ void Initialize_Modules( float _time_not_used_ )
     float b[2] = {2.43, 2.41};
 
     Initialize_Skid_Steer(&skid_controller, b, a, 1, 1.0, 1.0, 1.0, 2.6, 1.55 );
+    Initialize_Task(&task_update_controllers_pos, Send_Encoders_position);
+    Initialize_Task(&task_update_controllers_vel, Send_Encoders_velocity);      
 }
 
 /** Main program entry point. This routine configures the hardware required by the application, then
@@ -148,6 +150,8 @@ int main( void )
 
         // System ID
         Task_Run_If_Ready( &task_send_system_id );
+
+        Task_Run_If_Ready( &task_update_controllers);
 
         // re initalize
         Task_Run_If_Ready( &task_restart );

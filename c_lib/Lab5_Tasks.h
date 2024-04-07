@@ -59,12 +59,13 @@ typedef struct __attribute__( ( __packed__ ) ) {
 } velocityData;
 
 // Put your lab-specific tasks here
-Task_t task_update_controllers;
+Task_t task_update_controllers_vel;
+Task_t task_update_controllers_pos;
 Controller_t left_controller;
 Controller_t right_controller;
 Skid_Steer_Controller_t skid_controller;
 
-
-void update_controller();
+void Send_Encoders_position(distanceData);
+void Send_Encoders_velocity(velocityData);
 
 #endif  // ifndef LAB5_TASKS_H
