@@ -22,7 +22,8 @@ void Controller_Set_Target_Position( Controller_t* p_cont, float pos )
 
 float Controller_Update( Controller_t* p_cont, float measurement, float dt ) {
     p_cont->target_pos += p_cont->target_vel*dt;
-    return p_cont->kp * (p_cont->target_pos - measurement);
+    float output = Filter_Value(&p_cont->controller, measurement);
+    return p_cont->kp * (p_cont->target_pos - output);
 }
 
 float Controller_Last( Controller_t* p_cont)

@@ -414,6 +414,7 @@ void Task_Message_Handling( float _time_since_last )
                 // Command was processed related to watchdog
                 command_processed = true;
             }
+            break;
         case 'D':
             // specifies the distance to drive (linear followed by angular), terminates
             // after X milliseconds as specified by the third float. If the third float is
@@ -430,6 +431,7 @@ void Task_Message_Handling( float _time_since_last )
                 // Command was processed related to watchdog
                 command_processed = true;
             }
+            break;
         case 'v':
             // specifies the speed to drive (linear followed by angular)
             // input c
@@ -447,11 +449,12 @@ void Task_Message_Handling( float _time_since_last )
 
                 Controller_Set_Target_Velocity(&skid_controller.controller_left, left_vel);
                 Controller_Set_Target_Velocity(&skid_controller.controller_right, right_vel);
-                Task_Activate(&task_update_controllers_vel, -1);
+                Send_Encoders_velocity(0.0);
 
                 // Command was processed related to watchdog
                 command_processed = true;
             }
+            break;
         case 'V':
             // Specifies the speed to drive (linear followed by angular), terminates after
             // X milliseconds as specified by the third float. If the third float is negative,
@@ -468,6 +471,7 @@ void Task_Message_Handling( float _time_since_last )
                 // Command was processed related to watchdog
                 command_processed = true;
             }
+            break;
         default:
             // What to do if you dont recognize the command character
             USB_Send_Byte( '^' );

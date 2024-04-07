@@ -157,6 +157,8 @@ int main( void )
         // System ID 
         Task_Run_If_Ready( &task_send_system_id ); 
 
+        Task_Run_If_Ready( &task_update_controllers_vel);
+
         // re initalize
         Task_Run_If_Ready( &task_restart );
     }
