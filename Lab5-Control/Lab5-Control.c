@@ -109,8 +109,7 @@ void Initialize_Modules( float _time_not_used_ )
     float a[2] = {1.00, -0.9975};
     float b[2] = {2.43, 2.41};
 
-    Initialize_Skid_Steer(&skid_controller, b, a, 1, 1.0, 1.0, 1.0, 2.6, 1.55 );
-    Initialize_Task(&task_update_controllers_pos, Send_Encoders_position);
+    Initialize_Skid_Steer(&skid_controller, b, a, 1, 1.0, 1.0, 1.0, 2.6, 1.55, 0,0,0,0 );
     Initialize_Task(&task_update_controllers_vel, Send_Encoders_velocity);      
 }
 
@@ -151,7 +150,7 @@ int main( void )
         // System ID
         Task_Run_If_Ready( &task_send_system_id );
 
-        Task_Run_If_Ready( &task_update_controllers);
+        Task_Run_If_Ready( &task_update_controllers_vel);
 
         // re initalize
         Task_Run_If_Ready( &task_restart );

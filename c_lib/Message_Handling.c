@@ -453,6 +453,8 @@ void Task_Message_Handling( float _time_since_last )
 
                 float left_vel = Left_Displacement(&skid_controller, data.linear, data.angular);
                 float right_vel = Right_Displacement(&skid_controller, data.linear, data.angular);
+                left_vel = Saturate(left_vel, MotorPWM_Get_Max());
+                right_vel = Saturate(right_vel, MotorPWM_Get_Max());
 
                 Controller_Set_Target_Velocity(&skid_controller.controller_left, left_vel);
                 Controller_Set_Target_Velocity(&skid_controller.controller_right, right_vel);

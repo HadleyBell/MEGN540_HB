@@ -47,7 +47,7 @@ typedef struct {
     float wheel_base_width;             // The left-to-right seporation distance between the two side's drive wheels
     float conversion_speed_to_control;  // Relates the linear tangential speed of the left-side or right-side wheel to the motor speed being controlled
     float max_abs_control;              // The maximum control that can be applied, to enable control saturation
-
+    float wheel_diameter;
     //// Consider adding in the following functionality to implement slew-limited commands
     // float max_lin_accel;
     // float max_ang_accel;
