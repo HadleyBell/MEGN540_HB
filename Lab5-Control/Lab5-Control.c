@@ -114,8 +114,8 @@ void Initialize_Modules( float _time_not_used_ )
     float a[2] = {1.00, 0.9275};
     float b[2] = {1.73, 1.75};
 
-    skid_controller.controller_left = controller_left
-    skid_controller.controller_right = controller_right;
+    skid_controller.controller_left = left_controller;
+    skid_controller.controller_right = right_controller;
 
     Initialize_Skid_Steer(&skid_controller, b, a, 1, 0.1, 1.0, 1.0, 0.066, 0.039, NULL, NULL, NULL, NULL);
     Initialize_Task(&task_update_controllers_vel, Send_Encoders_velocity);
