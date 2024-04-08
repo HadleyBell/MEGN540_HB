@@ -111,8 +111,8 @@ void Initialize_Modules( float _time_not_used_ )
     // System Identification
     Initialize_Task( &task_send_system_id, Send_System_Id );
 
-    float a[2] = {1.00, -0.9975};
-    float b[2] = {2.43, 2.41};
+    float a[2] = {1.00, 0.9275};
+    float b[2] = {1.73, 1.75};
 
     skid_controller.controller_left = left_controller;
     skid_controller.controller_right = right_controller;

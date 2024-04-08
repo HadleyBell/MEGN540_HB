@@ -3,7 +3,7 @@
 
 
 // static const float BITS_TO_BATTERY_VOLTS = 0.00488758553275;
-static const float BITS_TO_BATTERY_VOLTS = 0.0050048875;
+static const float BITS_TO_BATTERY_VOLTS = 0.0070048875;
 
 /**
  * Function Initialize_Battery_Monitor initializes the Battery Monitor to record the current battery voltages.

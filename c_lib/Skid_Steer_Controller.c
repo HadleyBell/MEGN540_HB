@@ -6,7 +6,7 @@ void Initialize_Skid_Steer( Skid_Steer_Controller_t* p_skid_steer, float* z_tran
                             void ( *control_right_fcn_ptr )( float ) )
 {
     // initalize controllers left and right
-    float kp = 1.4775;
+    float kp = 7.7;
     p_skid_steer->wheel_diameter = wheel_diameter;
     p_skid_steer->wheel_base_width = wheel_base_width;
     Initialize_Controller( &p_skid_steer->controller_left, kp, z_transform_numerator, z_transform_denominator, z_transform_order, descritization_period );
