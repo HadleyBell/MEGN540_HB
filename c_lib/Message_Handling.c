@@ -411,6 +411,14 @@ void Task_Message_Handling( float _time_since_last )
                 // read into data struct
                 USB_Msg_Read_Into( &data, sizeof( data ) );
 
+                float left_dist = Left_Displacement(&skid_controller, data.linear, data.angular);
+                float right_dist = Right_Displacement(&skid_controller, data.linear, data.angular);
+
+                Controller_Set_Target_Position( &skid_controller.controller_left, left_dist );
+                Controller_Set_Target_Position( &skid_controller.controller_right, right_dist );
+
+                Send_Encoders_velocity(0.0);
+
                 // Command was processed related to watchdog
                 command_processed = true;
             }
