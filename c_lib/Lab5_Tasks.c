@@ -16,7 +16,7 @@ void Send_Encoders_position( float __unused)
 
 void Send_Encoders_velocity( float __unused)
 {
-    USB_Send_Msg("cf", 'w', &p_skid_steer->wheel_diameter, sizeof(p_skid_steer->wheel_diameter));
+    USB_Send_Msg("cf", 'w', &skid_controller.wheel_diameter, sizeof(skid_controller.wheel_diameter));
     // Check battery voltage
     if( Battery_Recent() > BATTERY_MOTOR_MIN_VOLTAGE ) {
         // if battery voltage is ok then set
