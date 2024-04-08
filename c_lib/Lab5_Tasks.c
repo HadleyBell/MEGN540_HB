@@ -48,3 +48,19 @@ void Send_Encoders_velocity( float __unused)
     }
     // math?
 }
+
+// stop 
+void PWM_Stop( float _time_since_last ) {
+    
+    Skid_Steer_Command_Velocity( Skid_Steer_Controller_t* p_skid_steer, 0, 0 );
+    Skid_Steer_Command_Displacement( Skid_Steer_Controller_t* p_skid_steer, 0, 0 );
+
+    // cancel the command control 
+    Task_Cancel( &task_update_controllers_vel );
+
+    // activate 
+    Task_Activate( &task_pwm_stop, -1 );
+
+    USB_Send_Byte( 0x8 ); 
+
+}

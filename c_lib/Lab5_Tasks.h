@@ -56,16 +56,20 @@ typedef struct __attribute__( ( __packed__ ) ) {
 typedef struct __attribute__( ( __packed__ ) ) {
     float linear;
     float angular;
+    float time;
 } velocityData;
 
 // Put your lab-specific tasks here
 Task_t task_update_controllers_vel;
 Task_t task_update_controllers_pos;
+Task_t task_pwm_stop; 
+
 Controller_t left_controller;
 Controller_t right_controller;
 Skid_Steer_Controller_t skid_controller;
 
 void Send_Encoders_position(float __unused);
 void Send_Encoders_velocity(float __unused);
+
 
 #endif  // ifndef LAB5_TASKS_H

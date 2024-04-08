@@ -118,8 +118,12 @@ void Skid_Steer_Command_Velocity( Skid_Steer_Controller_t* p_skid_steer, float l
  */
 void Skid_Steer_Control_Update( Skid_Steer_Controller_t* p_skid_steer, float ellapsed_time );
 
-float Left_Displacement(Skid_Steer_Controller_t* p_skin_steer, float linear, float angular);
+float Left_Displacement(Skid_Steer_Controller_t* p_skid_steer, float linear, float angular);
 
-float Right_Displacement(Skid_Steer_Controller_t* p_skin_steer, float linear, float angular);
+float Right_Displacement(Skid_Steer_Controller_t* p_skid_steer, float linear, float angular);
 
 #endif
+
+// kp 7.702
+// a = 1, .924
+// b = 1.73370, 1.6579
