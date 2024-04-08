@@ -447,9 +447,6 @@ void Task_Message_Handling( float _time_since_last )
                 left_vel = Saturate(left_vel, MotorPWM_Get_Max());
                 right_vel = Saturate(right_vel, MotorPWM_Get_Max());
 
-                MotorPWM_SetLeft(left_vel);
-                MotorPWM_SetRight(right_vel);
-
                 Controller_Set_Target_Velocity(&skid_controller.controller_left, left_vel);
                 Controller_Set_Target_Velocity(&skid_controller.controller_right, right_vel);
 
@@ -457,6 +454,9 @@ void Task_Message_Handling( float _time_since_last )
                 Controller_SetTo(&skid_controller.controller_right, Encoder_Rad_Right());
 
                 MotorPWM_Enable(true);
+
+                MotorPWM_Set_Right(right_vel);
+                MotorPWM_Set_Left(left_vel);
 
                 Send_Encoders_velocity(0.0);
 
