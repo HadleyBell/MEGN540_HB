@@ -117,8 +117,8 @@ void Initialize_Modules( float _time_not_used_ )
     skid_controller.controller_left = left_controller;
     skid_controller.controller_right = right_controller;
 
-    Initialize_Skid_Steer(&skid_controller, b, a, 1, 0.01, 1.0, 1.0, 2.6, 1.55, NULL, NULL, NULL, NULL);
-    Initialize_Task(&task_update_controllers_vel, Send_Encoders_velocity);      
+    Initialize_Skid_Steer(&skid_controller, b, a, 1, 0.01, 1.0, 1.0, 0.066, 0.039, NULL, NULL, NULL, NULL);
+    Initialize_Task(&task_update_controllers_vel, Send_Encoders_velocity);
 }
 
 /** Main program entry point. This routine configures the hardware required by the application, then
