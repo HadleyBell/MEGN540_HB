@@ -420,7 +420,7 @@ void Task_Message_Handling( float _time_since_last )
                 Controller_SetTo(&skid_controller.controller_left, left_dist);
                 Controller_SetTo(&skid_controller.controller_right, right_dist);
 
-                Task_Activate(&task_update_encoders_vel, skid_controller.controller_left.update_period);
+                Task_Activate(&task_update_controllers_vel, skid_controller.controller_left.update_period);
 
                 // Command was processed related to watchdog
                 command_processed = true;
