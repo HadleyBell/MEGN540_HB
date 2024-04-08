@@ -455,9 +455,6 @@ void Task_Message_Handling( float _time_since_last )
 
                 MotorPWM_Enable(true);
 
-                MotorPWM_Set_Right(right_vel);
-                MotorPWM_Set_Left(left_vel);
-
                 Send_Encoders_velocity(0.0);
 
                 // Command was processed related to watchdog
