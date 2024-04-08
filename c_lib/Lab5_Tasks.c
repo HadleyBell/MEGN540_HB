@@ -16,11 +16,12 @@ void Send_Encoders_position( float __unused)
 
 void Send_Encoders_velocity( float __unused)
 {
-    USB_Send_Msg("cf", 'w', &skid_controller.wheel_diameter, sizeof(skid_controller.wheel_diameter));
+    float value = Encoder_Rad_Left()/2;
+    USB_Send_Msg("cf", 'w', &value, sizeof(value));
     // Check battery voltage
     if( Battery_Recent() > BATTERY_MOTOR_MIN_VOLTAGE ) {
         // if battery voltage is ok then set
-        float left_meas = (skid_controller.wheel_diameter) * Encoder_Rad_Left()/2;
+        float left_meas = (skid_controller.wheel_diameter) * (Encoder_Rad_Left()/2);
         USB_Send_Msg("cf", 'x', &left_meas, sizeof(left_meas));
         float left_vel = Controller_Update(&left_controller, left_meas, left_controller.update_period);
         left_vel = Saturate(left_vel, MotorPWM_Get_Max());
