@@ -22,7 +22,7 @@ void Send_Encoders_velocity( float __unused)
         float left_meas = (skid_controller.wheel_diameter) * (Encoder_Rad_Left()/2);
         float left_vel = Controller_Update(&skid_controller.controller_right, left_meas, left_controller.update_period);
         left_vel = Saturate(left_vel, MotorPWM_Get_Max());
-        MotorPWM_Set_Left(left_vel);
+        MotorPWM_Set_Left(-left_vel);
 
         float right_meas = skid_controller.wheel_diameter * (Encoder_Rad_Right()/2);
         USB_Send_Msg("cf",'x', &right_meas, sizeof(right_meas));
