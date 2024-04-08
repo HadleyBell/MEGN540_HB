@@ -39,6 +39,7 @@
 #include "Controller.h"
 #include "Encoder.h"
 #include "MotorPWM.h"
+#include "SerialIO.h"
 
 typedef struct {
     Controller_t controller_left;   // Z-Transform Controller for the left-side drive
