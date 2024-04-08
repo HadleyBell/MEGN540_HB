@@ -455,7 +455,7 @@ void Task_Message_Handling( float _time_since_last )
 
                 MotorPWM_Enable(true);
 
-                Task_Activate(&task_update_controllers_vel, -1);
+                Send_Encoder_velocity(0.0);
 
                 // Command was processed related to watchdog
                 command_processed = true;

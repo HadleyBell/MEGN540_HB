@@ -30,6 +30,7 @@ void Send_Encoders_velocity( float __unused)
         MotorPWM_Set_Right(right_vel);
 
         MotorPWM_Enable( true );
+        USB_Send_Msg("cf",'v', &right_vel, sizeof(right_vel));
         
     } else {
         // Disable motors
