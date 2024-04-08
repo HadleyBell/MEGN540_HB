@@ -40,6 +40,7 @@
 #include "Controller.h"
 #include "Skid_Steer_Controller.h"
 #include "Encoder.h"
+#include "MotorPWM.h"
 
 // Include Lab Specific Task Definitions
 #include "Lab1_Tasks.h"

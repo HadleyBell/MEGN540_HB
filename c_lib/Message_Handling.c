@@ -453,6 +453,8 @@ void Task_Message_Handling( float _time_since_last )
                 Controller_SetTo(&skid_controller.controller_left, Encoder_Rad_Left());
                 Controller_SetTo(&skid_controller.controller_right, Encoder_Rad_Right());
 
+                MotorPWM_Enable(true);
+
                 Task_Activate(&task_update_controllers_vel, -1);
 
                 // Command was processed related to watchdog
