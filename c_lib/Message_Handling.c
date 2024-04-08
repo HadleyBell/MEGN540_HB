@@ -417,7 +417,10 @@ void Task_Message_Handling( float _time_since_last )
                 Controller_Set_Target_Position( &skid_controller.controller_left, left_dist );
                 Controller_Set_Target_Position( &skid_controller.controller_right, right_dist );
 
-                Send_Encoders_velocity(0.0);
+                Controller_SetTo(&skid_controller.controller_left, left_dist);
+                Controller_SetTo(&skid_controller.controller_right, right_dist);
+
+                Task_Activate(&task_update_encoders_vel, skid_controller.controller_left.update_period);
 
                 // Command was processed related to watchdog
                 command_processed = true;
