@@ -449,7 +449,11 @@ void Task_Message_Handling( float _time_since_last )
 
                 Controller_Set_Target_Velocity(&skid_controller.controller_left, left_vel);
                 Controller_Set_Target_Velocity(&skid_controller.controller_right, right_vel);
-                Send_Encoders_velocity(0.0);
+
+                Controller_SetTo(&skid_controller.controller_left, Encoder_Rad_Left());
+                Controller_SetTo(&skid_controller.controller_right, Encoder_Rad_Right());
+
+                Task_Activate(&task_update_controllers_vel, -1);
 
                 // Command was processed related to watchdog
                 command_processed = true;
