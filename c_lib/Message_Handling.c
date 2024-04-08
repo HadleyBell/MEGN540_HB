@@ -450,8 +450,8 @@ void Task_Message_Handling( float _time_since_last )
                 Controller_Set_Target_Velocity(&skid_controller.controller_left, left_vel);
                 Controller_Set_Target_Velocity(&skid_controller.controller_right, right_vel);
 
-                Controller_SetTo(&skid_controller.controller_left, Encoder_Rad_Left());
-                Controller_SetTo(&skid_controller.controller_right, Encoder_Rad_Right());
+                Controller_SetTo(&skid_controller.controller_left, left_vel);
+                Controller_SetTo(&skid_controller.controller_right, right_vel);
 
                 MotorPWM_Enable(true);
 
