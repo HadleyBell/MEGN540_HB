@@ -447,6 +447,9 @@ void Task_Message_Handling( float _time_since_last )
                 left_vel = Saturate(left_vel, MotorPWM_Get_Max());
                 right_vel = Saturate(right_vel, MotorPWM_Get_Max());
 
+                MotorPWM_SetLeft(left_vel);
+                MotorPWM_SetRight(right_vel);
+
                 Controller_Set_Target_Velocity(&skid_controller.controller_left, left_vel);
                 Controller_Set_Target_Velocity(&skid_controller.controller_right, right_vel);
 
